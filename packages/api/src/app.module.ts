@@ -23,6 +23,15 @@ import { EmailService } from './services/email/email.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntitySubscriber } from './subscribers/entity.subscriber';
 import { AuditoriaSubscriber } from './subscribers/auditoria.subscriber';
+import { FamiliaModule } from './modules/familia/familia.module';
+import { GrupoModule } from './modules/grupo/grupo.module';
+import { SubgrupoModule } from './modules/subgrupo/subgrupo.module';
+import { ColorModule } from './modules/color/color.module';
+import { TalleModule } from './modules/talle/talle.module';
+import { CurvaColorModule } from './modules/curva-color/curva-color.module';
+import { CurvaTalleModule } from './modules/curva-talle/curva-talle.module';
+import { ArticuloModule } from './modules/articulo/articulo.module';
+import { ArticuloVarianteModule } from './modules/articulo-variante/articulo-variante.module';
 
 @Module({
   imports: [
@@ -56,6 +65,15 @@ import { AuditoriaSubscriber } from './subscribers/auditoria.subscriber';
     EnvioNotificacionModule,
     EjemploCategoriaModule,
     EjemploModule,
+    FamiliaModule,
+    GrupoModule,
+    SubgrupoModule,
+    ColorModule,
+    TalleModule,
+    CurvaColorModule,
+    CurvaTalleModule,
+    ArticuloModule,
+    ArticuloVarianteModule,
   ],
   providers: [
     ExcelExportService,

@@ -18,6 +18,7 @@ Revisa `.claude/skills/` para ver todos los skills. Algunos ejemplos clave:
 - **migraciones-sql**: Cambios en base de datos
 - **manejo-fechas**: Gestión de fechas y timestamps
 - **modulos-backend**: Crear módulos NestJS
+- **servicios-backend**: Servicios con QueryBuilder, relaciones y filtros avanzados
 - **paginas-crud-frontend**: Crear páginas CRUD
 - **formularios**: Crear formularios con validación
 - **tablas-frontend**: Crear tablas con TanStack Table
