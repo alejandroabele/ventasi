@@ -252,3 +252,8 @@ docker-compose run --rm certbot renew --force-renewal
 ### Resolver max watch en desarrollo Ubuntu
 
 pkill -f node
+
+### USUARIO ROOT
+
+admin@template.local
+Admin123!

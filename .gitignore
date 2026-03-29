@@ -13,4 +13,3 @@ packages/front/public/logo.png
 packages/front/public/logo_*.png
 packages/front/public/web-app-manifest-*.png
 packages/front/src/app/favicon.ico
-openspec

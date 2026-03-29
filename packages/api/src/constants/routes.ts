@@ -9,6 +9,62 @@ export const MENU = [
         icon: 'Home',
     },
 
+    // Módulo: Stock
+    {
+        title: 'Stock',
+        icon: 'Package',
+        items: [
+            {
+                id: PERMISOS.RUTA_ARTICULOS,
+                title: 'Artículos',
+                url: '/articulos',
+                icon: 'ShoppingBag',
+            },
+            {
+                id: PERMISOS.RUTA_FAMILIAS,
+                title: 'Familias',
+                url: '/familias',
+                icon: 'FolderOpen',
+            },
+            {
+                id: PERMISOS.RUTA_GRUPOS,
+                title: 'Grupos',
+                url: '/grupos',
+                icon: 'Layers',
+            },
+            {
+                id: PERMISOS.RUTA_SUBGRUPOS,
+                title: 'Subgrupos',
+                url: '/subgrupos',
+                icon: 'Layers2',
+            },
+            {
+                id: PERMISOS.RUTA_COLORES,
+                title: 'Colores',
+                url: '/colores',
+                icon: 'Palette',
+            },
+            {
+                id: PERMISOS.RUTA_CURVAS_COLOR,
+                title: 'Curvas de Color',
+                url: '/curvas-color',
+                icon: 'Palette',
+            },
+            {
+                id: PERMISOS.RUTA_TALLES,
+                title: 'Talles',
+                url: '/talles',
+                icon: 'Ruler',
+            },
+            {
+                id: PERMISOS.RUTA_CURVAS_TALLE,
+                title: 'Curvas de Talle',
+                url: '/curvas-talle',
+                icon: 'LineChart',
+            },
+        ]
+    },
+
     // Módulo: Ejemplo
     {
         title: 'Ejemplo',

@@ -273,3 +273,44 @@ export type Ejemplo = {
     updatedAt?: string;
     deletedAt?: string | null;
 }
+
+// --- Stock: Clasificación ---
+export type Familia = { id?: number; nombre: string; silueta?: string; }
+export type Grupo = { id?: number; nombre: string; familiaId: number; familia?: Familia; }
+export type Subgrupo = { id?: number; nombre: string; grupoId: number; grupo?: Grupo & { familia?: Familia }; }
+
+// --- Stock: Colores ---
+export type ColorCodigo = { id?: number; colorId: number; hex: string; orden: number; }
+export type Color = { id?: number; codigo: string; nombre: string; descripcion?: string; codigos?: ColorCodigo[]; codigosHex?: string[]; }
+export type CurvaColor = { id?: number; nombre: string; descripcion?: string; colorIds?: number[]; colores?: Color[]; detalles?: CurvaColorDetalle[]; }
+export type CurvaColorDetalle = { id?: number; curvaId: number; colorId: number; orden: number; color?: Color; }
+
+// --- Stock: Talles ---
+export type Talle = { id?: number; codigo: string; nombre: string; orden: number; }
+export type CurvaTalle = { id?: number; nombre: string; descripcion?: string; talleIds?: number[]; talles?: Talle[]; detalles?: CurvaTalleDetalle[]; }
+export type CurvaTalleDetalle = { id?: number; curvaId: number; talleId: number; orden: number; talle?: Talle; }
+
+// --- Stock: Artículos ---
+export type Articulo = {
+    id?: number; nombre: string; descripcion?: string;
+    codigo: string; sku: string; codigoBarras?: string; codigoQr?: string;
+    precio?: number; subgrupoId: number;
+    curvaColorId?: number; curvaId?: number;
+    subgrupo?: Subgrupo; curvaColor?: CurvaColor; curva?: CurvaTalle;
+    talles?: ArticuloTalle[]; colores?: ArticuloColor[];
+    totalVariantes?: number; stockTotal?: string;
+}
+export type ArticuloTalle = { id?: number; articuloId: number; talleId: number; orden: number; talle?: Talle; }
+export type ArticuloColor = { id?: number; articuloId: number; colorId: number; orden: number; color?: Color; }
+
+// --- Stock: Variantes (Grilla) ---
+export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; }
+export type CeldaGrilla = {
+    talleId: number; talleCodigo: string; talleNombre: string; talleOrden: number;
+    colorId: number; colorCodigo: string; colorNombre: string; colorOrden: number; colorCodigos: string[];
+    varianteId?: number; cantidad?: string;
+    estado: 'potencial' | 'real';
+}
+export type GrillaColor = { id: number; codigo: string; nombre: string; orden: number; codigos: string[]; }
+export type GrillaArticulo = { celdas: CeldaGrilla[]; talles: Talle[]; colores: GrillaColor[]; stockTotal: number; }
+export type IngresoItem = { talleId: number; colorId: number; cantidad: string; }

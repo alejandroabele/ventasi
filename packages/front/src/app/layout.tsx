@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { ThemeProvider } from "../components/theme-provider";
 import "./globals.css";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { LoadingProvider } from "@/providers/loading-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning className={cn("font-sans", inter.variable)}>
       <body
         className={` min-h-svh bg-background font-sans ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -37,7 +41,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <LoadingProvider>{children}</LoadingProvider>
+            <TooltipProvider>
+              <LoadingProvider>{children}</LoadingProvider>
+            </TooltipProvider>
             <Toaster />
           </ThemeProvider>
         </ReactQueryProvider>

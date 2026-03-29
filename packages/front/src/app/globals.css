@@ -14,8 +14,8 @@ body {
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 72.2% 50.6%;
-    --primary-foreground: 0 85.7% 97.3%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
@@ -26,7 +26,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 72.2% 50.6%;
+    --ring: 199 89% 48%;
     --radius: 0.75rem;
     --chart-1: 347 77% 50%;
     --chart-2: 352 83% 91%;
@@ -35,10 +35,10 @@ body {
     --chart-5: 349 77% 62%;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 0 72.2% 50.6%;
+    --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 0 72.2% 50.6%;
+    --sidebar-accent-foreground: 199 89% 48%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --success: 141.9 69.2% 58%;
@@ -53,8 +53,8 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 72.2% 50.6%;
-    --primary-foreground: 0 85.7% 97.3%;
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
@@ -65,7 +65,7 @@ body {
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 72.2% 50.6%;
+    --ring: 199 89% 48%;
     --chart-1: 347 77% 50%;
     --chart-2: 352 83% 91%;
     --chart-3: 350 80% 72%;
@@ -73,10 +73,10 @@ body {
     --chart-5: 349 77% 62%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 0 72.2% 50.6%;
+    --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 0 72.2% 50.6%;
+    --sidebar-accent-foreground: 199 89% 48%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
     --success: 141.9 69.2% 58%;
