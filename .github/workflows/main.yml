@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - main
+      - master
 
 jobs:
   deploy:
@@ -24,8 +24,8 @@ jobs:
             sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" root@$SERVER_IP "
               cd pinte-crm && git fetch origin develop && git reset --hard origin/develop && ./entrypoint.sh
             "
-          elif [ "${{ github.ref_name }}" == "main" ]; then
+          elif [ "${{ github.ref_name }}" == "master" ]; then
             sshpass -p "$SERVER_PASS_PROD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT_PROD" root@$SERVER_IP_PROD "
-              cd pinte-crm && git fetch origin main && git reset --hard origin/main && ./entrypoint.sh
+              cd pinte-crm && git fetch origin master && git reset --hard origin/master && ./entrypoint.sh
             "
           fi
