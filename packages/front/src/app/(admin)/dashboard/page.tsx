@@ -3,7 +3,7 @@
 export default function HomePage() {
   return (
     <>
-      <h1>Pintegralco</h1>
+      <h1>VentaSi</h1>
     </>
   );
 }

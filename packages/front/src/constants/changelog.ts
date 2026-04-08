@@ -12,6 +12,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG_DATA: ChangelogEntry[] = [
     {
+        date: '8 de abril, 2026',
+        changes: [
+            { type: 'new', text: 'Se agrega gestión de clientes con listado, creación y edición' },
+            { type: 'new', text: 'Se agrega gestión de proveedores con listado, creación y edición' },
+            { type: 'new', text: 'Se agrega gestión de ubicaciones de almacenamiento' },
+            { type: 'new', text: 'Se agrega registro de movimientos de inventario (entradas y salidas)' },
+            { type: 'new', text: 'Se agrega visualización de stock por ubicación en el artículo' },
+        ],
+    },
+    {
         date: '29 de marzo, 2026',
         changes: [
             { type: 'new', text: 'Se agrega gestión de artículos con variantes por talle y color' },

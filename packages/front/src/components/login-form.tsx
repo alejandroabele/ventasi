@@ -158,9 +158,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        Bienvenido al CRM de {process.env.NEXT_PUBLIC_APP_NAME || "Pintegralco"}
-        , la herramienta interna diseñada para gestionar y dar seguimiento a
-        trabajos y presupuestos de manera eficiente.
+        Bienvenido al CRM de {process.env.NEXT_PUBLIC_APP_NAME || "VentaSi"}, la
+        herramienta interna diseñada para gestionar y dar seguimiento a trabajos
+        y presupuestos de manera eficiente.
       </div>
       <Toaster />
     </div>

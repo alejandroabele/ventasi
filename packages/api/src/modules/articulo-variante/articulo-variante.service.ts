@@ -29,7 +29,7 @@ export class ArticuloVarianteService {
         c.nombre      AS color_nombre,
         ac.orden      AS color_orden,
         v.id          AS variante_id,
-        v.cantidad,
+        CAST(COALESCE(SUM(CAST(spu.cantidad AS SIGNED)), 0) AS CHAR) AS cantidad,
         CASE WHEN v.id IS NULL THEN 'potencial' ELSE 'real' END AS estado
       FROM articulo_talle at2
       JOIN talle t ON t.id = at2.talle_id AND t.deleted_at IS NULL
@@ -40,8 +40,14 @@ export class ArticuloVarianteService {
         AND v.talle_id    = t.id
         AND v.color_id    = c.id
         AND v.deleted_at  IS NULL
+      LEFT JOIN stock_por_ubicacion spu
+        ON  spu.articulo_variante_id = v.id
+        AND spu.deleted_at IS NULL
       WHERE at2.articulo_id = ?
         AND at2.deleted_at  IS NULL
+      GROUP BY t.id, t.codigo, t.nombre, at2.orden,
+               c.id, c.codigo, c.nombre, ac.orden,
+               v.id
       ORDER BY at2.orden, ac.orden`,
       [articuloId]
     );

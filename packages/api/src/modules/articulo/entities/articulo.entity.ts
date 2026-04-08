@@ -1,6 +1,6 @@
 import { BaseEntity } from '@/common/base.entity';
 import { MoneyColumn } from '@/common/decorators/money-column.decorator';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, VirtualColumn } from 'typeorm';
 import { Subgrupo } from '@/modules/subgrupo/entities/subgrupo.entity';
 import { CurvaTalle } from '@/modules/curva-talle/entities/curva-talle.entity';
 import { CurvaColor } from '@/modules/curva-color/entities/curva-color.entity';
@@ -59,4 +59,14 @@ export class Articulo extends BaseEntity {
 
   @OneToMany(() => ArticuloColor, (ac) => ac.articulo)
   colores: ArticuloColor[];
+
+  @VirtualColumn({
+    query: (alias) => `(
+      SELECT COALESCE(SUM(CAST(spu.cantidad AS SIGNED)), 0)
+      FROM articulo_variante av
+      JOIN stock_por_ubicacion spu ON spu.articulo_variante_id = av.id AND spu.deleted_at IS NULL
+      WHERE av.articulo_id = ${alias}.id AND av.deleted_at IS NULL
+    )`,
+  })
+  stockTotal: number;
 }

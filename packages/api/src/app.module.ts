@@ -32,6 +32,11 @@ import { CurvaColorModule } from './modules/curva-color/curva-color.module';
 import { CurvaTalleModule } from './modules/curva-talle/curva-talle.module';
 import { ArticuloModule } from './modules/articulo/articulo.module';
 import { ArticuloVarianteModule } from './modules/articulo-variante/articulo-variante.module';
+import { UbicacionModule } from './modules/ubicacion/ubicacion.module';
+import { ProveedorModule } from './modules/proveedor/proveedor.module';
+import { ClienteModule } from './modules/cliente/cliente.module';
+import { StockPorUbicacionModule } from './modules/stock-por-ubicacion/stock-por-ubicacion.module';
+import { MovimientoInventarioModule } from './modules/movimiento-inventario/movimiento-inventario.module';
 
 @Module({
   imports: [
@@ -74,6 +79,11 @@ import { ArticuloVarianteModule } from './modules/articulo-variante/articulo-var
     CurvaTalleModule,
     ArticuloModule,
     ArticuloVarianteModule,
+    UbicacionModule,
+    ProveedorModule,
+    ClienteModule,
+    StockPorUbicacionModule,
+    MovimientoInventarioModule,
   ],
   providers: [
     ExcelExportService,

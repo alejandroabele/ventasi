@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
     return {
         name: process.env.NEXT_PUBLIC_APP_NAME,
-        short_name: 'Pintegralco',
+        short_name: 'VentaSi',
         description: 'A Progressive Web App built with Next.js',
         start_url: '/',
         display: 'standalone',
