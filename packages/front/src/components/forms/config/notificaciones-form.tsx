@@ -92,7 +92,7 @@ export default function NotificacionesForm() {
               <FormLabel>Dirección de envío (From)</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="ej: administracion@pintegralco.com.ar"
+                  placeholder="ej: administracion@ventasi.com.ar"
                   {...field}
                 />
               </FormControl>
@@ -134,7 +134,7 @@ export default function NotificacionesForm() {
               <FormItem>
                 <FormLabel>Email de prueba</FormLabel>
                 <FormControl>
-                  <Input placeholder="ej: dev@pintegralco.com.ar" {...field} />
+                  <Input placeholder="ej: dev@ventasi.com.ar" {...field} />
                 </FormControl>
                 <FormDescription>
                   Todos los envíos se redirigirán a este correo mientras el

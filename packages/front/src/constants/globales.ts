@@ -2,5 +2,5 @@ export const CLIENTES = {
     PINTEGRALCO: 53
 }
 export const COMPRADORES = {
-    PINTEGRALCO: 'Pintegralco'
+    PINTEGRALCO: 'VentaSi'
 }

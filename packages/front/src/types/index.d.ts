@@ -304,7 +304,7 @@ export type ArticuloTalle = { id?: number; articuloId: number; talleId: number; 
 export type ArticuloColor = { id?: number; articuloId: number; colorId: number; orden: number; color?: Color; }
 
 // --- Stock: Variantes (Grilla) ---
-export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; }
+export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; articulo?: { id?: number; nombre: string; sku?: string; }; }
 export type CeldaGrilla = {
     talleId: number; talleCodigo: string; talleNombre: string; talleOrden: number;
     colorId: number; colorCodigo: string; colorNombre: string; colorOrden: number; colorCodigos: string[];
@@ -314,3 +314,55 @@ export type CeldaGrilla = {
 export type GrillaColor = { id: number; codigo: string; nombre: string; orden: number; codigos: string[]; }
 export type GrillaArticulo = { celdas: CeldaGrilla[]; talles: Talle[]; colores: GrillaColor[]; stockTotal: number; }
 export type IngresoItem = { talleId: number; colorId: number; cantidad: string; }
+
+// --- Inventario ---
+export type Ubicacion = { id?: number; nombre: string; descripcion?: string; }
+export type Proveedor = { id?: number; nombre: string; cuit?: string; telefono?: string; email?: string; }
+export type Cliente = { id?: number; nombre: string; email?: string; telefono?: string; }
+
+export type TipoMovimiento = 'MOVIMIENTO' | 'ARREGLO';
+
+export type DetalleMovimiento = {
+    articuloVarianteId: number;
+    articuloId?: number;
+    talleId?: number;
+    colorId?: number;
+    cantidad: string;
+    cantidadNueva?: string;
+    cantidadAnterior?: string;
+    articuloVariante?: ArticuloVariante;
+}
+
+export type UsuarioResumen = { id: number; nombre?: string; email: string; }
+
+export type MovimientoInventario = {
+    id?: number;
+    tipo: TipoMovimiento;
+    fecha: string;
+    descripcion?: string;
+    cantidadTotal?: string;
+    responsableId?: number;
+    responsable?: UsuarioResumen;
+    procedenciaUbicacionId?: number;
+    procedenciaProveedorId?: number;
+    procedenciaClienteId?: number;
+    destinoUbicacionId?: number;
+    destinoProveedorId?: number;
+    destinoClienteId?: number;
+    procedenciaUbicacion?: Ubicacion;
+    procedenciaProveedor?: Proveedor;
+    procedenciaCliente?: Cliente;
+    destinoUbicacion?: Ubicacion;
+    destinoProveedor?: Proveedor;
+    destinoCliente?: Cliente;
+    detalles?: DetalleMovimiento[];
+}
+
+export type StockPorUbicacion = {
+    id?: number;
+    articuloVarianteId: number;
+    ubicacionId: number;
+    cantidad: string;
+    articuloVariante?: ArticuloVariante;
+    ubicacion?: Ubicacion;
+}

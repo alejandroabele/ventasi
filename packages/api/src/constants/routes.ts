@@ -9,9 +9,9 @@ export const MENU = [
         icon: 'Home',
     },
 
-    // Módulo: Stock
+    // Módulo: Catálogo
     {
-        title: 'Stock',
+        title: 'Catálogo',
         icon: 'Package',
         items: [
             {
@@ -119,6 +119,46 @@ export const MENU = [
                 title: 'Envíos de Notificación',
                 url: '/administracion/envios-notificacion',
                 icon: 'Send',
+            },
+        ]
+    },
+
+    // Módulo: Inventario
+    {
+        title: 'Inventario',
+        icon: 'Warehouse',
+        items: [
+            {
+                id: PERMISOS.RUTA_MOVIMIENTOS,
+                title: 'Movimientos',
+                url: '/movimientos',
+                icon: 'ArrowLeftRight',
+            },
+            {
+                id: PERMISOS.RUTA_UBICACIONES,
+                title: 'Ubicaciones',
+                url: '/ubicaciones',
+                icon: 'MapPin',
+            },
+        ]
+    },
+
+    // Módulo: Contactos
+    {
+        title: 'Contactos',
+        icon: 'BookUser',
+        items: [
+            {
+                id: PERMISOS.RUTA_PROVEEDORES,
+                title: 'Proveedores',
+                url: '/proveedores',
+                icon: 'Truck',
+            },
+            {
+                id: PERMISOS.RUTA_CLIENTES,
+                title: 'Clientes',
+                url: '/clientes',
+                icon: 'UserRound',
             },
         ]
     },

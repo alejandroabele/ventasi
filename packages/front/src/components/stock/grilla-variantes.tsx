@@ -346,13 +346,11 @@ export function GrillaVariantes({ articuloId }: GrillaVariantesProps) {
               <span className="font-medium text-foreground">Talle:</span>{' '}
               {celdaSeleccionada?.talleCodigo} — {celdaSeleccionada?.talleNombre}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
               <span className="font-medium text-foreground">Color:</span>{' '}
-              <span className="inline-flex items-center gap-1">
-                <ColorSwatches codigos={celdaSeleccionada?.colorCodigos ?? []} />
-                {celdaSeleccionada?.colorCodigo} — {celdaSeleccionada?.colorNombre}
-              </span>
-            </p>
+              <ColorSwatches codigos={celdaSeleccionada?.colorCodigos ?? []} />
+              <span>{celdaSeleccionada?.colorCodigo} — {celdaSeleccionada?.colorNombre}</span>
+            </div>
             {celdaSeleccionada?.cantidad && (
               <p className="text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">Cantidad actual:</span>{' '}
