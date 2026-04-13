@@ -12,6 +12,17 @@ export type ChangelogEntry = {
 
 export const CHANGELOG_DATA: ChangelogEntry[] = [
     {
+        date: '13 de abril, 2026',
+        changes: [
+            { type: 'new', text: 'Se agrega registro de visitas al local con selector de tipo de visitante y características' },
+            { type: 'new', text: 'Se agrega resolución de visitas pendientes como compra o no compra' },
+            { type: 'new', text: 'Se agrega dashboard de conversión con métricas del día, semana y mes' },
+            { type: 'new', text: 'Se agrega configuración de características de visitante con selector de íconos' },
+            { type: 'new', text: 'Se agrega configuración de razones de no compra con sub-razones' },
+            { type: 'new', text: 'Se agrega sección Visitas en el menú lateral' },
+        ],
+    },
+    {
         date: '8 de abril, 2026',
         changes: [
             { type: 'new', text: 'Se agrega gestión de clientes con listado, creación y edición' },

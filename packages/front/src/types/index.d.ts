@@ -366,3 +366,86 @@ export type StockPorUbicacion = {
     articuloVariante?: ArticuloVariante;
     ubicacion?: Ubicacion;
 }
+
+export type CaracteristicaVisitante = {
+    id?: number;
+    nombre: string;
+    icono: string;
+    orden?: number;
+    activo?: boolean;
+}
+
+export type SubRazonNoCompra = {
+    id?: number;
+    razonId?: number;
+    nombre: string;
+    orden?: number;
+    activo?: boolean;
+}
+
+export type RazonNoCompra = {
+    id?: number;
+    nombre: string;
+    orden?: number;
+    activo?: boolean;
+    subRazones?: SubRazonNoCompra[];
+}
+
+export type TipoVisitante = 'MUJER' | 'HOMBRE' | 'ADULTO_MAYOR' | 'JOVEN' | 'PAREJA' | 'FAMILIA' | 'GRUPO';
+export type EstadoVisita = 'PENDIENTE' | 'COMPRA' | 'NO_COMPRA';
+
+export type Visita = {
+    id?: number;
+    fecha?: string;
+    hora?: string;
+    tipoVisitante: TipoVisitante;
+    estado?: EstadoVisita;
+    movimientoId?: number;
+    razonId?: number;
+    subRazonId?: number;
+    articuloId?: number;
+    clienteId?: number;
+    observaciones?: string;
+    caracteristicas?: CaracteristicaVisitante[];
+    razon?: RazonNoCompra;
+    subRazon?: SubRazonNoCompra;
+    articulo?: Articulo;
+    cliente?: Cliente;
+}
+
+export type MetricasDia = {
+    entradas: number;
+    compras: number;
+    noCompras: number;
+    pendientes: number;
+    conversion: number;
+}
+
+export type DashboardRazon = {
+    razon: RazonNoCompra;
+    total: number;
+    porcentaje: number;
+    subRazones: { subRazon: SubRazonNoCompra; total: number; porcentaje: number }[];
+}
+
+export type DashboardTipo = {
+    tipo: TipoVisitante;
+    entradas: number;
+    compras: number;
+    noCompras: number;
+    conversion: number;
+    razonPrincipal?: RazonNoCompra;
+}
+
+export type DashboardConversion = {
+    periodo: 'hoy' | 'semana' | 'mes';
+    fechaDesde: string;
+    fechaHasta: string;
+    entradas: number;
+    compras: number;
+    noCompras: number;
+    pendientes: number;
+    conversion: number;
+    razones: DashboardRazon[];
+    tablaTipos: DashboardTipo[];
+}

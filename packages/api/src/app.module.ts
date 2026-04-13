@@ -37,6 +37,9 @@ import { ProveedorModule } from './modules/proveedor/proveedor.module';
 import { ClienteModule } from './modules/cliente/cliente.module';
 import { StockPorUbicacionModule } from './modules/stock-por-ubicacion/stock-por-ubicacion.module';
 import { MovimientoInventarioModule } from './modules/movimiento-inventario/movimiento-inventario.module';
+import { CaracteristicaVisitanteModule } from './modules/caracteristica-visitante/caracteristica-visitante.module';
+import { RazonNoCompraModule } from './modules/razon-no-compra/razon-no-compra.module';
+import { VisitaModule } from './modules/visita/visita.module';
 
 @Module({
   imports: [
@@ -84,6 +87,9 @@ import { MovimientoInventarioModule } from './modules/movimiento-inventario/movi
     ClienteModule,
     StockPorUbicacionModule,
     MovimientoInventarioModule,
+    CaracteristicaVisitanteModule,
+    RazonNoCompraModule,
+    VisitaModule,
   ],
   providers: [
     ExcelExportService,
