@@ -70,6 +70,10 @@ export class CreateMovimientoInventarioDto {
   @IsNumber()
   destinoClienteId?: number;
 
+  @IsOptional()
+  @IsNumber()
+  visitaId?: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => DetalleMovimientoDto)

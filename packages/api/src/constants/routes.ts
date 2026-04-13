@@ -123,6 +123,38 @@ export const MENU = [
         ]
     },
 
+    // Módulo: Visitas y Conversión
+    {
+        title: 'Visitas',
+        icon: 'UserCheck',
+        items: [
+            {
+                id: PERMISOS.RUTA_REGISTRO_VISITAS,
+                title: 'Registro de visitas',
+                url: '/registro-visitas',
+                icon: 'UserPlus',
+            },
+            {
+                id: PERMISOS.RUTA_DASHBOARD_CONVERSION,
+                title: 'Conversión',
+                url: '/dashboard/conversion',
+                icon: 'TrendingUp',
+            },
+            {
+                id: PERMISOS.RUTA_CONFIG_CARACTERISTICAS,
+                title: 'Características de visitante',
+                url: '/visitas/caracteristicas-visitante',
+                icon: 'Tag',
+            },
+            {
+                id: PERMISOS.RUTA_CONFIG_RAZONES_NO_COMPRA,
+                title: 'Razones de no compra',
+                url: '/visitas/razones-no-compra',
+                icon: 'AlertCircle',
+            },
+        ]
+    },
+
     // Módulo: Inventario
     {
         title: 'Inventario',

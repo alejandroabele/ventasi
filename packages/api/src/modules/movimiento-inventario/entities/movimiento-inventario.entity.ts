@@ -81,4 +81,7 @@ export class MovimientoInventario extends BaseEntity {
 
   @OneToMany(() => MovimientoInventarioDetalle, (d) => d.movimiento, { cascade: true })
   detalles: MovimientoInventarioDetalle[];
+
+  @Column({ name: 'visita_id', type: 'int', nullable: true })
+  visitaId?: number;
 }
