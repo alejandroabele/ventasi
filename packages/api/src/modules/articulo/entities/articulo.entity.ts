@@ -37,8 +37,14 @@ export class Articulo extends BaseEntity {
   @Column({ name: 'codigo_qr', type: 'varchar', length: 500, nullable: true })
   codigoQr: string;
 
-  @MoneyColumn({ name: 'precio', default: '0.00' })
-  precio: number;
+  @MoneyColumn({ name: 'costo', default: '0.0000' })
+  costo: number;
+
+  @Column({ name: 'tipo_continuidad', type: 'varchar', length: 20, nullable: true })
+  tipoContinuidad: string;
+
+  @Column({ name: 'es_ancla', type: 'tinyint', default: 0 })
+  esAncla: boolean;
 
   @Column({ name: 'curva_id', type: 'int', nullable: true })
   curvaId: number;

@@ -13,10 +13,15 @@ import {
 import React from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { useGetArticulosQuery } from "@/hooks/articulos";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { SkeletonTable } from "@/components/skeletons/skeleton-table";
+import { hasPermission } from "@/hooks/use-access";
+import { PERMISOS } from "@/constants/permisos";
 
 export function ArticulosTable() {
+  const puedeVerCosto = hasPermission(PERMISOS.ARTICULO_VER_COSTO);
+  const columns = getColumns(puedeVerCosto);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);

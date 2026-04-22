@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiKeyGuard } from '@/modules/auth/guards/api-key/api-key.guard';
 import { AuthorizationGuard } from '@/modules/auth/guards/authorization/authorization.guard';
 import { RequirePermissions } from '@/modules/auth/decorators/require-permissions/require-permissions.decorator';
 import { PERMISOS } from '@/constants/permisos';
+import { PermissionsService } from '@/modules/auth/permissions/permissions.service';
+import { PayloadTokenWithRefreshToken } from '@/interfaces/auth';
 import { ArticuloService } from './articulo.service';
 import { CreateArticuloDto } from './dto/create-articulo.dto';
 import { UpdateArticuloDto } from './dto/update-articulo.dto';
@@ -30,37 +32,60 @@ class AgregarColorDto {
 @Controller('articulos')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, AuthorizationGuard)
 export class ArticuloController {
-  constructor(private readonly service: ArticuloService) {}
+  constructor(
+    private readonly service: ArticuloService,
+    private readonly permissionsService: PermissionsService,
+  ) {}
+
+  private async resolverPermisosCosto(req: any) {
+    const { role } = req.user as unknown as PayloadTokenWithRefreshToken;
+    const [verCosto, editarCosto] = await Promise.all([
+      this.permissionsService.roleHasPermissions(role, [PERMISOS.ARTICULO_VER_COSTO]),
+      this.permissionsService.roleHasPermissions(role, [PERMISOS.ARTICULO_EDITAR_COSTO]),
+    ]);
+    return { verCosto, editarCosto };
+  }
 
   @Post()
   @RequirePermissions(PERMISOS.ARTICULO_CREAR)
-  create(@Body() dto: CreateArticuloDto) {
-    return this.service.create(dto);
+  async create(@Body() dto: CreateArticuloDto, @Req() req: any) {
+    const { verCosto, editarCosto } = await this.resolverPermisosCosto(req);
+    return this.service.create(dto, verCosto, editarCosto);
   }
 
   @Get()
   @RequirePermissions(PERMISOS.ARTICULO_VER)
-  findAll(
+  async findAll(
     @Query('limit') take: number,
     @Query('skip') skip: number,
     @Query('filter') filter: string,
     @Query('order') order: string,
+    @Req() req: any,
   ) {
+    const { verCosto } = await this.resolverPermisosCosto(req);
     const where = filter ? JSON.parse(filter) : [];
     const orderBy = order ? JSON.parse(order) : {};
-    return this.service.findAll({ where, order: orderBy, take, skip });
+    return this.service.findAll({ where, order: orderBy, take, skip }, verCosto);
+  }
+
+  @Get('dashboard-anclas')
+  @RequirePermissions(PERMISOS.DASHBOARD_ANCLAS_VER)
+  getDashboardAnclas() {
+    return this.service.getDashboardAnclas();
   }
 
   @Get(':id')
   @RequirePermissions(PERMISOS.ARTICULO_VER)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const { verCosto } = await this.resolverPermisosCosto(req);
+    return this.service.findOne(id, verCosto);
   }
 
   @Patch(':id')
   @RequirePermissions(PERMISOS.ARTICULO_EDITAR)
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArticuloDto) {
-    return this.service.update(id, dto);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArticuloDto, @Req() req: any) {
+    const { verCosto, editarCosto } = await this.resolverPermisosCosto(req);
+    return this.service.update(id, dto, verCosto, editarCosto);
   }
 
   @Delete(':id')

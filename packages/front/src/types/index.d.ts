@@ -294,26 +294,61 @@ export type CurvaTalleDetalle = { id?: number; curvaId: number; talleId: number;
 export type Articulo = {
     id?: number; nombre: string; descripcion?: string;
     codigo: string; sku: string; codigoBarras?: string; codigoQr?: string;
-    precio?: number; subgrupoId: number;
+    costo?: number; subgrupoId: number;
     curvaColorId?: number; curvaId?: number;
+    tipoContinuidad?: 'continuidad' | 'temporada';
+    esAncla?: boolean;
     subgrupo?: Subgrupo; curvaColor?: CurvaColor; curva?: CurvaTalle;
     talles?: ArticuloTalle[]; colores?: ArticuloColor[];
     totalVariantes?: number; stockTotal?: string;
+    precioDefault?: number;
 }
+
+// --- Precios ---
+export type ModoInicializacion = 'CERO' | 'COPIAR' | 'PORCENTAJE' | 'DESDE_COSTO';
+export type ListaPrecio = {
+    id?: number; nombre: string; descripcion?: string;
+    esDefault?: number; activo?: number;
+    modo?: ModoInicializacion; listaOrigenId?: number;
+    porcentaje?: number; factor?: number;
+}
+export type ArticuloPrecio = {
+    id?: number; articuloId: number; listaPrecioId: number;
+    precio: number; articulo?: Articulo; listaPrecio?: ListaPrecio;
+}
+export type UpdatePrecioItem = { articuloId: number; listaPrecioId: number; precio: number; }
+export type AplicarPorcentajePayload = { listaPrecioId: number; articuloIds: number[]; porcentaje: number; }
 export type ArticuloTalle = { id?: number; articuloId: number; talleId: number; orden: number; talle?: Talle; }
 export type ArticuloColor = { id?: number; articuloId: number; colorId: number; orden: number; color?: Color; }
 
 // --- Stock: Variantes (Grilla) ---
+export type EstadoSemaforo = 'ROJO' | 'AMARILLO' | 'VERDE' | 'SIN_ESTADO';
+export type UmbralVariante = { stockMinimo?: number | null; stockSeguridad?: number | null; stockMaximo?: number | null; }
+export type BulkUmbralPayload = UmbralVariante & { articuloId: number; }
 export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; articulo?: { id?: number; nombre: string; sku?: string; }; }
 export type CeldaGrilla = {
     talleId: number; talleCodigo: string; talleNombre: string; talleOrden: number;
     colorId: number; colorCodigo: string; colorNombre: string; colorOrden: number; colorCodigos: string[];
     varianteId?: number; cantidad?: string;
     estado: 'potencial' | 'real';
+    stockMinimo?: number | null; stockSeguridad?: number | null; stockMaximo?: number | null;
+    estadoSemaforo?: EstadoSemaforo;
 }
 export type GrillaColor = { id: number; codigo: string; nombre: string; orden: number; codigos: string[]; }
 export type GrillaArticulo = { celdas: CeldaGrilla[]; talles: Talle[]; colores: GrillaColor[]; stockTotal: number; }
 export type IngresoItem = { talleId: number; colorId: number; cantidad: string; }
+
+// --- Dashboard Anclas ---
+export type VarianteAncla = {
+    id: number; talleCodigo: string; talleNombre: string;
+    colorCodigo: string; colorNombre: string;
+    stockMinimo: number | null; stockSeguridad: number | null; stockMaximo: number | null;
+    stockActual: number; estadoSemaforo: EstadoSemaforo;
+}
+export type ArticuloAncla = {
+    id: number; nombre: string; codigo: string; tipoContinuidad?: string;
+    stockTotal: number; estadoAgregado: EstadoSemaforo; variantes: VarianteAncla[];
+}
 
 // --- Inventario ---
 export type Ubicacion = { id?: number; nombre: string; descripcion?: string; }

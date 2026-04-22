@@ -7,6 +7,8 @@ import { PERMISOS } from '@/constants/permisos';
 import { ArticuloVarianteService } from './articulo-variante.service';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { UpdateUmbralVarianteDto } from './dto/update-umbrales-variante.dto';
+import { BulkUmbralVarianteDto } from './dto/bulk-umbrales.dto';
 
 class IngresoItemDto {
   @IsNumber()
@@ -64,5 +66,26 @@ export class ArticuloVarianteController {
   @RequirePermissions(PERMISOS.ARTICULO_ELIMINAR)
   eliminarVariante(@Param('varianteId', ParseIntPipe) varianteId: number) {
     return this.service.eliminarVariante(varianteId);
+  }
+
+  @Patch(':articuloId/variantes/:varianteId/umbrales')
+  @RequirePermissions(PERMISOS.ARTICULO_EDITAR)
+  actualizarUmbrales(
+    @Param('varianteId', ParseIntPipe) varianteId: number,
+    @Body() dto: UpdateUmbralVarianteDto,
+  ) {
+    return this.service.actualizarUmbrales(varianteId, dto);
+  }
+
+  @Post('variantes/bulk-umbrales')
+  @RequirePermissions(PERMISOS.ARTICULO_EDITAR)
+  bulkUmbrales(@Body() dto: BulkUmbralVarianteDto) {
+    return this.service.bulkUmbrales(dto.articuloId, dto);
+  }
+
+  @Post('variantes/:varianteId/copiar-umbrales')
+  @RequirePermissions(PERMISOS.ARTICULO_EDITAR)
+  copiarUmbrales(@Param('varianteId', ParseIntPipe) varianteId: number) {
+    return this.service.copiarUmbrales(varianteId);
   }
 }

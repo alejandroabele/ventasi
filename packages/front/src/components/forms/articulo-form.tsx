@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Articulo } from "@/types";
 import {
   useCreateArticulosMutation,
@@ -45,11 +47,14 @@ const formSchema = z.object({
   sku: z.string({ message: "SKU requerido" }).min(1, "SKU requerido"),
   codigoBarras: z.string().optional(),
   codigoQr: z.string().optional(),
+  costo: z.number().min(0, "El costo no puede ser negativo").optional(),
   subgrupoId: z.number({ message: "Subgrupo requerido" }),
   curvaId: z.number({ message: "Curva de talle requerida" }),
   curvaColorId: z.number({ message: "Curva de color requerida" }),
   familiaId: z.number({ message: "Familia requerida" }),
   grupoId: z.number({ message: "Grupo requerido" }),
+  tipoContinuidad: z.enum(["continuidad", "temporada"]).optional(),
+  esAncla: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -98,11 +103,14 @@ export default function ArticuloForm({ defaultValues }: ArticuloFormProps) {
       sku: defaultValues?.sku || "",
       codigoBarras: defaultValues?.codigoBarras || "",
       codigoQr: defaultValues?.codigoQr || "",
+      costo: defaultValues?.costo ?? undefined,
       subgrupoId: defaultValues?.subgrupoId,
       curvaId: defaultValues?.curvaId,
       curvaColorId: defaultValues?.curvaColorId,
       familiaId: familiaIdInicial,
       grupoId: grupoIdInicial,
+      tipoContinuidad: defaultValues?.tipoContinuidad,
+      esAncla: defaultValues?.esAncla ?? false,
     },
   });
 
@@ -476,6 +484,54 @@ export default function ArticuloForm({ defaultValues }: ArticuloFormProps) {
             </div>
           </div>
         )}
+
+        {/* Clasificación comercial */}
+        <div className="border rounded-lg p-4 space-y-4 bg-muted/10">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Clasificación comercial</p>
+
+          <FormField
+            control={form.control}
+            name="tipoContinuidad"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tipo</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                    className="flex gap-6"
+                  >
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="continuidad" id="continuidad" />
+                      <label htmlFor="continuidad" className="text-sm cursor-pointer">Continuidad</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="temporada" id="temporada" />
+                      <label htmlFor="temporada" className="text-sm cursor-pointer">Temporada</label>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="esAncla"
+            render={({ field }) => (
+              <FormItem className="flex items-center gap-3">
+                <FormControl>
+                  <Switch
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel className="!mt-0 cursor-pointer">Artículo ancla</FormLabel>
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex gap-2">
           <Button type="button" variant="outline" onClick={() => router.push("/articulos")}>

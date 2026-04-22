@@ -1,4 +1,4 @@
-import { Articulo, Query } from '@/types';
+import { Articulo, ArticuloAncla, Query } from '@/types';
 import fetchClient from '@/lib/api-client';
 import { generateQueryParams } from '@/utils/query-helper';
 
@@ -32,4 +32,8 @@ const remove = async (id: number): Promise<void> => {
     return fetchClient<void>(`${basePath}/${id}`, 'DELETE');
 };
 
-export { fetch, fetchById, create, edit, addTalle, addColor, remove };
+const fetchDashboardAnclas = async (): Promise<ArticuloAncla[]> => {
+    return fetchClient<ArticuloAncla[]>(`${basePath}/dashboard-anclas`, 'GET');
+};
+
+export { fetch, fetchById, create, edit, addTalle, addColor, remove, fetchDashboardAnclas };

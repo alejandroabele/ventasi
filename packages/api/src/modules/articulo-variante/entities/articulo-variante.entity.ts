@@ -32,4 +32,13 @@ export class ArticuloVariante extends BaseEntity {
 
   @Column({ name: 'cantidad', type: 'varchar', length: 100, default: '0' })
   cantidad: string;
+
+  @Column({ name: 'stock_minimo', type: 'int', nullable: true })
+  stockMinimo: number;
+
+  @Column({ name: 'stock_seguridad', type: 'int', nullable: true })
+  stockSeguridad: number;
+
+  @Column({ name: 'stock_maximo', type: 'int', nullable: true })
+  stockMaximo: number;
 }

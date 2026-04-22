@@ -2,16 +2,18 @@
 
 import ArticuloForm from '@/components/forms/articulo-form';
 import { CombinacionesArticulo } from '@/components/stock/combinaciones-articulo';
+import { GrillaUmbrales } from '@/components/stock/grilla-umbrales';
+import { PreciosArticulo } from '@/components/articulo/precios-articulo';
 import { PageTitle } from '@/components/ui/page-title';
 import { useGetArticuloByIdQuery } from '@/hooks/articulos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Warehouse, PencilLine } from 'lucide-react';
+import { Warehouse, PencilLine, BadgeDollarSign, TrendingUp } from 'lucide-react';
 import React from 'react';
 import { SkeletonTable } from '@/components/skeletons/skeleton-table';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const TABS = ['info', 'inventario'] as const;
+const TABS = ['info', 'inventario', 'umbrales', 'precios'] as const;
 type Tab = typeof TABS[number];
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -45,6 +47,14 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             <Warehouse className="h-3.5 w-3.5" />
             Inventario
           </TabsTrigger>
+          <TabsTrigger value="umbrales" className="flex-1 flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Umbrales
+          </TabsTrigger>
+          <TabsTrigger value="precios" className="flex-1 flex items-center gap-1.5">
+            <BadgeDollarSign className="h-3.5 w-3.5" />
+            Precios
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="info">
@@ -69,6 +79,32 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
               ) : (
                 <p className="text-muted-foreground">No se encontró el artículo.</p>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="umbrales">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Umbrales de stock por variante</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data ? (
+                <GrillaUmbrales articulo={data} />
+              ) : (
+                <p className="text-muted-foreground">No se encontró el artículo.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="precios">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Precios por lista</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data && <PreciosArticulo articulo={data} />}
             </CardContent>
           </Card>
         </TabsContent>

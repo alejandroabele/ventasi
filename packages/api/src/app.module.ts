@@ -40,6 +40,8 @@ import { MovimientoInventarioModule } from './modules/movimiento-inventario/movi
 import { CaracteristicaVisitanteModule } from './modules/caracteristica-visitante/caracteristica-visitante.module';
 import { RazonNoCompraModule } from './modules/razon-no-compra/razon-no-compra.module';
 import { VisitaModule } from './modules/visita/visita.module';
+import { ListaPrecioModule } from './modules/lista-precio/lista-precio.module';
+import { ArticuloPrecioModule } from './modules/articulo-precio/articulo-precio.module';
 
 @Module({
   imports: [
@@ -90,6 +92,8 @@ import { VisitaModule } from './modules/visita/visita.module';
     CaracteristicaVisitanteModule,
     RazonNoCompraModule,
     VisitaModule,
+    ListaPrecioModule,
+    ArticuloPrecioModule,
   ],
   providers: [
     ExcelExportService,

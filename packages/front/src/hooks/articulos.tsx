@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Articulo, Query } from '@/types';
-import { fetch, fetchById, create, edit, addTalle, addColor, remove } from '@/services/articulos';
+import { fetch, fetchById, create, edit, addTalle, addColor, remove, fetchDashboardAnclas } from '@/services/articulos';
 
 export const useGetArticulosQuery = (query: Query) => {
     return useQuery({
@@ -89,5 +89,12 @@ export const useDeleteArticulosMutation = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['articulos'] });
         },
+    });
+};
+
+export const useGetDashboardAnclasQuery = () => {
+    return useQuery({
+        queryKey: ['dashboard-anclas'],
+        queryFn: fetchDashboardAnclas,
     });
 };
