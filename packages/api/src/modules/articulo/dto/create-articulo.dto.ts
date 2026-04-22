@@ -31,6 +31,10 @@ export class CreateArticuloDto {
   costo?: number;
 
   @IsOptional()
+  @IsString()
+  alicuotaIva?: string;
+
+  @IsOptional()
   @IsNumber()
   curvaId?: number;
 

@@ -9,6 +9,7 @@ import { MovimientoInventarioDetalle } from './movimiento-inventario-detalle.ent
 export enum TipoMovimiento {
   MOVIMIENTO = 'MOVIMIENTO',
   ARREGLO = 'ARREGLO',
+  VENTA = 'VENTA',
 }
 
 @Entity('movimiento_inventario')
@@ -84,4 +85,7 @@ export class MovimientoInventario extends BaseEntity {
 
   @Column({ name: 'visita_id', type: 'int', nullable: true })
   visitaId?: number;
+
+  @Column({ name: 'venta_id', type: 'int', nullable: true })
+  ventaId?: number;
 }

@@ -60,12 +60,13 @@ export class ArticuloController {
     @Query('skip') skip: number,
     @Query('filter') filter: string,
     @Query('order') order: string,
+    @Query('search') search: string,
     @Req() req: any,
   ) {
     const { verCosto } = await this.resolverPermisosCosto(req);
     const where = filter ? JSON.parse(filter) : [];
     const orderBy = order ? JSON.parse(order) : {};
-    return this.service.findAll({ where, order: orderBy, take, skip }, verCosto);
+    return this.service.findAll({ where, order: orderBy, take, skip }, verCosto, search);
   }
 
   @Get('dashboard-anclas')

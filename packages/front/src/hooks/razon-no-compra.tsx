@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RazonNoCompra, SubRazonNoCompra } from '@/types';
+import { RazonNoCompra, SubRazonNoCompra, Query } from '@/types';
 import { fetchTodas, fetchById, fetchActivas, create, edit, createSubRazon, editSubRazon } from '@/services/razon-no-compra';
 
-export const useGetRazonesNoCompraQuery = () => {
+export const useGetRazonesNoCompraQuery = (query?: Query) => {
     return useQuery({
-        queryKey: ['razones-no-compra'],
+        queryKey: ['razones-no-compra', query],
         queryFn: fetchTodas,
     });
 };

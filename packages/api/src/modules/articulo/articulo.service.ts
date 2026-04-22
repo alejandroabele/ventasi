@@ -23,7 +23,7 @@ export class ArticuloService {
     private listaPrecioService: ListaPrecioService,
   ) {}
 
-  async findAll(conditions: FindManyOptions<Articulo>, puedeVerCosto: boolean): Promise<Articulo[]> {
+  async findAll(conditions: FindManyOptions<Articulo>, puedeVerCosto: boolean, search?: string): Promise<Articulo[]> {
     const qb = this.repo.createQueryBuilder('articulo');
     qb.leftJoinAndSelect('articulo.subgrupo', 'subgrupo');
     qb.leftJoinAndSelect('subgrupo.grupo', 'grupo');
@@ -39,6 +39,13 @@ export class ArticuloService {
       'precioDefault',
     );
     buildWhereAndOrderQuery(qb, conditions, 'articulo');
+    if (search) {
+      const s = `%${search.toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(articulo.nombre) LIKE :s OR LOWER(articulo.codigo) LIKE :s OR LOWER(articulo.sku) LIKE :s)',
+        { s },
+      );
+    }
     const { entities, raw } = await qb.getRawAndEntities();
     return entities.map((a, i) => Object.assign(
       this.ocultarCosto(a, puedeVerCosto),

@@ -11,4 +11,28 @@ export class CreateClienteDto {
   @IsOptional()
   @IsString()
   telefono?: string;
+
+  @IsOptional()
+  @IsString()
+  cuit?: string;
+
+  @IsOptional()
+  @IsString()
+  condicionIva?: string;
+
+  @IsOptional()
+  @IsString()
+  domicilio?: string;
+
+  @IsOptional()
+  @IsString()
+  localidad?: string;
+
+  @IsOptional()
+  @IsString()
+  provincia?: string;
+
+  @IsOptional()
+  @IsString()
+  codigoPostal?: string;
 }

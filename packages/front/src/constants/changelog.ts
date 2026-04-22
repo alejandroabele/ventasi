@@ -12,6 +12,21 @@ export type ChangelogEntry = {
 
 export const CHANGELOG_DATA: ChangelogEntry[] = [
     {
+        date: '22 de abril, 2026',
+        changes: [
+            { type: 'new', text: 'Se agrega módulo de ventas con carga de artículos, descuentos, recargos e IVA' },
+            { type: 'new', text: 'Se agrega confirmación y anulación de ventas con movimiento automático de stock' },
+            { type: 'new', text: 'Se agrega emisión de comprobantes fiscales (integración ARCA/WSFE) y manuales' },
+            { type: 'new', text: 'Se agrega impresión de comprobantes en formato A4 y térmica (80mm)' },
+            { type: 'new', text: 'Se agrega gestión de vendedores en Configuración' },
+            { type: 'new', text: 'Se agrega gestión de métodos de pago con cuotas e intereses configurables' },
+            { type: 'new', text: 'Se agrega soporte de múltiples formas de pago por venta con cálculo de saldo' },
+            { type: 'improved', text: 'Se amplía el formulario de clientes con datos fiscales: CUIT, condición IVA, domicilio' },
+            { type: 'improved', text: 'Se agrega consulta automática al padrón AFIP al ingresar el CUIT de un cliente' },
+            { type: 'improved', text: 'Se agrega campo de alícuota IVA (21% por defecto) en artículos' },
+        ],
+    },
+    {
         date: '21 de abril, 2026',
         changes: [
             { type: 'new', text: 'Se agrega dashboard de artículos ancla con semáforo de stock (crítico, atención, normal)' },

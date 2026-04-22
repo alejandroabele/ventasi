@@ -42,6 +42,9 @@ import { RazonNoCompraModule } from './modules/razon-no-compra/razon-no-compra.m
 import { VisitaModule } from './modules/visita/visita.module';
 import { ListaPrecioModule } from './modules/lista-precio/lista-precio.module';
 import { ArticuloPrecioModule } from './modules/articulo-precio/articulo-precio.module';
+import { VendedorModule } from './modules/vendedor/vendedor.module';
+import { MetodoPagoModule } from './modules/metodo-pago/metodo-pago.module';
+import { VentaModule } from './modules/venta/venta.module';
 
 @Module({
   imports: [
@@ -94,6 +97,9 @@ import { ArticuloPrecioModule } from './modules/articulo-precio/articulo-precio.
     VisitaModule,
     ListaPrecioModule,
     ArticuloPrecioModule,
+    VendedorModule,
+    MetodoPagoModule,
+    VentaModule,
   ],
   providers: [
     ExcelExportService,

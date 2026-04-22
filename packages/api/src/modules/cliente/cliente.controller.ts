@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiKeyGuard } from '@/modules/auth/guards/api-key/api-key.guard';
 import { AuthorizationGuard } from '@/modules/auth/guards/authorization/authorization.guard';
@@ -11,7 +13,10 @@ import { UpdateClienteDto } from './dto/update-cliente.dto';
 @Controller('clientes')
 @UseGuards(JwtAuthGuard, ApiKeyGuard, AuthorizationGuard)
 export class ClienteController {
-  constructor(private readonly service: ClienteService) {}
+  constructor(
+    private readonly service: ClienteService,
+    @Inject('AFIP_SERVICE') private readonly afipClient: ClientProxy,
+  ) {}
 
   @Post()
   @RequirePermissions(PERMISOS.CLIENTE_CREAR)
@@ -26,10 +31,11 @@ export class ClienteController {
     @Query('skip') skip: number,
     @Query('filter') filter: string,
     @Query('order') order: string,
+    @Query('search') search: string,
   ) {
     const where = filter ? JSON.parse(filter) : [];
     const orderBy = order ? JSON.parse(order) : {};
-    return this.service.findAll({ where, order: orderBy, take, skip });
+    return this.service.findAll({ where, order: orderBy, take, skip }, search);
   }
 
   @Get(':id')
@@ -48,5 +54,11 @@ export class ClienteController {
   @RequirePermissions(PERMISOS.CLIENTE_ELIMINAR)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id);
+  }
+
+  @Get('padron/:cuit')
+  @RequirePermissions(PERMISOS.CLIENTE_VER)
+  async getPadron(@Param('cuit') cuit: string) {
+    return firstValueFrom(this.afipClient.send('get-padron', { cuit }));
   }
 }

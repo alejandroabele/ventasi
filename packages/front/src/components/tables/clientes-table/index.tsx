@@ -61,5 +61,5 @@ export function ClientesTable() {
 
   if (isLoading) return <SkeletonTable />;
 
-  return <DataTable table={table} columns={columns} />;
+  return <DataTable table={table} columns={columns} toolbar={true} />;
 }
