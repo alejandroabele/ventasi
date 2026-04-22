@@ -31,10 +31,11 @@ export class ClienteController {
     @Query('skip') skip: number,
     @Query('filter') filter: string,
     @Query('order') order: string,
+    @Query('search') search: string,
   ) {
     const where = filter ? JSON.parse(filter) : [];
     const orderBy = order ? JSON.parse(order) : {};
-    return this.service.findAll({ where, order: orderBy, take, skip });
+    return this.service.findAll({ where, order: orderBy, take, skip }, search);
   }
 
   @Get(':id')

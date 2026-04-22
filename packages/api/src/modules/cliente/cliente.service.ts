@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
-import { transformToGenericFilters } from '@/helpers/filter-utils';
+import { buildWhereAndOrderQuery } from '@/helpers/filter-utils';
 import { Cliente } from './entities/cliente.entity';
 import { CreateClienteDto } from './dto/create-cliente.dto';
 import { UpdateClienteDto } from './dto/update-cliente.dto';
@@ -13,11 +13,17 @@ export class ClienteService {
     private repo: Repository<Cliente>,
   ) {}
 
-  async findAll(conditions: FindManyOptions<Cliente>) {
-    return await this.repo.find({
-      ...conditions,
-      where: transformToGenericFilters(conditions.where as Record<string, unknown>),
-    });
+  async findAll(conditions: FindManyOptions<Cliente>, search?: string) {
+    const qb = this.repo.createQueryBuilder('cliente');
+    buildWhereAndOrderQuery(qb, conditions, 'cliente');
+    if (search) {
+      const s = `%${search.toLowerCase()}%`;
+      qb.andWhere(
+        '(LOWER(cliente.nombre) LIKE :s OR LOWER(cliente.cuit) LIKE :s)',
+        { s },
+      );
+    }
+    return qb.getMany();
   }
 
   async findOne(id: number) {
