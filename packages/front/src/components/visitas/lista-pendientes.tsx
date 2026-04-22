@@ -2,8 +2,8 @@
 
 import { useGetVisitasPendientesQuery } from '@/hooks/visita'
 import { Visita } from '@/types'
-import { getTipoEmoji, getTipoLabel } from './selector-tipo-visitante'
-import { Clock } from 'lucide-react'
+import { getTipoLabel, getTipoIcono, getTipoColor, getTipoBg } from './selector-tipo-visitante'
+import { CheckCircle2, Clock, XCircle } from 'lucide-react'
 import { IconoCaracteristica } from './icono-caracteristica'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -27,53 +27,73 @@ export function ListaPendientes({ onNoCompra }: Props) {
 
   return (
     <div className="space-y-3">
-      {pendientes.map((visita: Visita) => (
-        <div key={visita.id} className="rounded-2xl border bg-card overflow-hidden">
+      {pendientes.map((visita: Visita) => {
+        const TipoIcono = getTipoIcono(visita.tipoVisitante)
+        const tipoColor = getTipoColor(visita.tipoVisitante)
+        const tipoBg = getTipoBg(visita.tipoVisitante)
 
-          {/* Info visitante */}
-          <div className="flex items-center gap-4 px-5 py-4">
-            <div className="w-14 h-14 rounded-2xl border bg-muted/40 flex items-center justify-center shrink-0">
-              <span className="text-4xl">{getTipoEmoji(visita.tipoVisitante)}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-lg leading-tight">{getTipoLabel(visita.tipoVisitante)}</p>
-              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                <span className="text-sm text-muted-foreground">{visita.hora}</span>
-                {visita.caracteristicas?.map((c) => (
-                  <span key={c.id} className="text-sm text-muted-foreground">
-                    · <IconoCaracteristica nombre={c.icono} className="h-3 w-3 inline" /> {c.nombre}
+        return (
+          <div key={visita.id} className="rounded-2xl border bg-card overflow-hidden shadow-sm">
+
+            {/* Info visitante */}
+            <div className="flex items-center gap-4 px-5 py-4">
+              <div className={cn(
+                'w-14 h-14 rounded-2xl flex items-center justify-center shrink-0',
+                tipoBg
+              )}>
+                <TipoIcono className={cn('h-7 w-7', tipoColor)} strokeWidth={1.75} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-lg leading-tight">{getTipoLabel(visita.tipoVisitante)}</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                    {visita.hora}
                   </span>
-                ))}
+                  {visita.caracteristicas?.map((c) => (
+                    <span
+                      key={c.id}
+                      className="inline-flex items-center gap-1 text-xs bg-muted/60 text-muted-foreground px-2 py-0.5 rounded-full"
+                    >
+                      <IconoCaracteristica nombre={c.icono} className="h-3 w-3" />
+                      {c.nombre}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Acciones */}
-          <div className="grid grid-cols-2 border-t">
-            <button
-              onClick={() => router.push(`/movimientos/crear?visitaId=${visita.id}`)}
-              className={cn(
-                'flex items-center justify-center py-5',
-                'bg-green-600 hover:bg-green-700 active:bg-green-800',
-                'active:scale-[0.98] transition-all touch-manipulation select-none',
-                'border-r border-green-500'
-              )}
-            >
-              <span className="text-white font-bold text-xl">Compró</span>
-            </button>
-            <button
-              onClick={() => onNoCompra(visita.id!)}
-              className={cn(
-                'flex items-center justify-center py-5',
-                'bg-red-600 hover:bg-red-700 active:bg-red-800',
-                'active:scale-[0.98] transition-all touch-manipulation select-none'
-              )}
-            >
-              <span className="text-white font-bold text-xl">No compró</span>
-            </button>
+            {/* Acciones */}
+            <div className="grid grid-cols-2 border-t">
+              <button
+                onClick={() => router.push(`/movimientos/crear?visitaId=${visita.id}`)}
+                className={cn(
+                  'flex items-center justify-center gap-2.5 py-5',
+                  'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800',
+                  'active:scale-[0.98] transition-all touch-manipulation select-none cursor-pointer',
+                  'border-r border-emerald-500'
+                )}
+                aria-label="Registrar compra"
+              >
+                <CheckCircle2 className="h-5 w-5 text-white" strokeWidth={2} />
+                <span className="text-white font-bold text-xl">Compró</span>
+              </button>
+              <button
+                onClick={() => onNoCompra(visita.id!)}
+                className={cn(
+                  'flex items-center justify-center gap-2.5 py-5',
+                  'bg-red-600 hover:bg-red-700 active:bg-red-800',
+                  'active:scale-[0.98] transition-all touch-manipulation select-none cursor-pointer'
+                )}
+                aria-label="Registrar no compra"
+              >
+                <XCircle className="h-5 w-5 text-white" strokeWidth={2} />
+                <span className="text-white font-bold text-xl">No compró</span>
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

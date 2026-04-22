@@ -8,11 +8,15 @@ interface PageTitleProps {
 export function PageTitle({ title, children }: PageTitleProps) {
     if (children) {
         return (
-            <div className="flex items-center justify-between pb-4 w-full">
-                <h2 className="text-xl font-semibold">{title}</h2>
+            <div className="flex items-center justify-between pb-4 mb-2 border-b w-full">
+                <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
                 <div>{children}</div>
             </div>
         );
     }
-    return <h2 className="text-xl font-semibold pb-4 w-full">{title}</h2>;
+    return (
+        <div className="pb-4 mb-2 border-b w-full">
+            <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
+        </div>
+    );
 }

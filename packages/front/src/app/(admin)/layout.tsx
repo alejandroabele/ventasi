@@ -47,7 +47,7 @@ export default function RootLayout({
         {!isLoading && <AppSidebar user={user} menu={menu} />}
         <SidebarInset className="flex-1 flex flex-col overflow-hidden">
           <Navbar />
-          <main className="flex-1 p-6 overflow-scroll ">{children}</main>
+          <main className="flex-1 p-6 overflow-auto">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </div>

@@ -8,33 +8,33 @@ import {
   TableHeader,
   TableHead,
   TableRow,
-} from "@/components/ui/table"; // Asegúrate de tener los componentes correctos
-import { DataTableToolbar } from "@/components/ui/data-table-toolbar"; // Asegúrate de importar el DataTableToolbar
-import { DataTablePagination } from "@/components/ui/data-table-pagination"; // Asegúrate de importar el DataTablePagination
-import { flexRender } from "@tanstack/react-table"; // Asegúrate de importar flexRender de react-table
+} from "@/components/ui/table";
+import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
+import { DataTablePagination } from "@/components/ui/data-table-pagination";
+import { flexRender } from "@tanstack/react-table";
 import type {
   Table as TableType,
   ColumnDef,
   Column,
-} from "@tanstack/react-table"; // Importar el tipo para la tabla
+} from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 import { DatePicker } from "@/components/date-picker";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useConfigStore } from "@/stores/config-store"; // Asegúrate de importar el store correctamente
+import { useConfigStore } from "@/stores/config-store";
 import { DateRangePicker } from "../date-range-picker";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<T> {
   table: TableType<T>;
-  columns: ColumnDef<T>[]; // Tipamos correctamente las columnas según el tipo de datos T
-  toolbar?: boolean; // Prop opcional para mostrar u ocultar el toolbar
+  columns: ColumnDef<T>[];
+  toolbar?: boolean;
   download?: React.ReactNode;
   create?: boolean;
   deleteFilters?: boolean;
   onDelete?: () => void;
-  customActions?: React.ReactNode; // Prop opcional
+  customActions?: React.ReactNode;
   pagination?: boolean;
   renderSubComponent?: (row: T) => React.ReactElement;
 }
@@ -51,25 +51,20 @@ export function DataTable<T>({
   pagination = true,
   renderSubComponent,
 }: DataTableProps<T>) {
-  // Referencia para el contenedor de la tabla
   const tableContainerRef = React.useRef<HTMLDivElement>(null);
+  const { accessibilityMode } = useConfigStore();
 
-  // Estado para controlar la visibilidad de los botones (siempre visibles ahora)
-  const { accessibilityMode } = useConfigStore(); // Obtiene el estado y la función del store
-
-  // Función para manejar el desplazamiento horizontal
   const handleScroll = (direction: "left" | "right") => {
     if (tableContainerRef.current) {
-      const scrollAmount = 500;
       tableContainerRef.current.scrollBy({
-        left: direction === "right" ? scrollAmount : -scrollAmount,
+        left: direction === "right" ? 500 : -500,
         behavior: "smooth",
       });
     }
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-3">
       {!toolbar ? (
         <DataTableToolbar
           create={create}
@@ -82,53 +77,53 @@ export function DataTable<T>({
       ) : (
         customActions && <div className="flex justify-end">{customActions}</div>
       )}
-      {/* Tabla */}
-      <div className="rounded-md border">
+
+      <div className="rounded-lg border overflow-hidden shadow-sm">
         <div className="relative w-full overflow-auto" ref={tableContainerRef}>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="">
+                <TableRow key={headerGroup.id} className="bg-muted/40 hover:bg-muted/40 border-b">
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="px-4 py-2 text-left text-sm font-medium border-b"
+                      className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider"
                     >
                       {header.isPlaceholder ? null : (
-                        <div className="flex items-center justify-between">
-                          {/* Botón para Ordenamiento */}
+                        <>
                           {header.column.getCanSort() ? (
-                            <Button
-                              variant="ghost"
+                            <button
+                              type="button"
                               onClick={() =>
                                 header.column.toggleSorting(
                                   header.column.getIsSorted() === "asc"
                                 )
                               }
-                              className="flex items-center"
+                              className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+                              aria-label={`Ordenar por ${typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : header.id}`}
                             >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {header.column.getIsSorted() === "asc" ? (
+                                <ArrowUp className="h-3.5 w-3.5 text-primary" />
+                              ) : header.column.getIsSorted() === "desc" ? (
+                                <ArrowDown className="h-3.5 w-3.5 text-primary" />
+                              ) : (
+                                <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
                               )}
-                              <ArrowUpDown className="ml-2 h-4 w-4" />
-                            </Button>
+                            </button>
                           ) : (
-                            <div className="inline-flex items-center justify-center rounded-md bg-transparent px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors ">
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
+                            <span>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                            </span>
+                          )}
+                          {header.column.getCanFilter() && (
+                            <div className="mt-1.5">
+                              {header.column.columnDef.meta?.customFilter ? (
+                                header.column.columnDef.meta.customFilter(table)
+                              ) : (
+                                <Filter column={header.column} />
                               )}
                             </div>
-                          )}
-                        </div>
-                      )}
-                      {header.column.getCanFilter() && (
-                        <>
-                          {header.column.columnDef.meta?.customFilter ? (
-                            header.column.columnDef.meta.customFilter(table)
-                          ) : (
-                            <Filter column={header.column} />
                           )}
                         </>
                       )}
@@ -142,19 +137,19 @@ export function DataTable<T>({
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <React.Fragment key={row.id}>
-                    <TableRow data-state={row.getIsSelected() && "selected"}>
+                    <TableRow
+                      data-state={row.getIsSelected() && "selected"}
+                      className="transition-colors hover:bg-muted/30 border-b border-border/50 last:border-0"
+                    >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="p-2 pl-0">
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
+                        <TableCell key={cell.id} className="px-4 py-3 text-sm">
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
                     </TableRow>
                     {row.getIsExpanded() && renderSubComponent && (
-                      <TableRow className="bg-muted/50">
-                        <TableCell colSpan={row.getVisibleCells().length}>
+                      <TableRow className="bg-muted/20 hover:bg-muted/20">
+                        <TableCell colSpan={row.getVisibleCells().length} className="px-4 py-3">
                           {renderSubComponent(row.original)}
                         </TableCell>
                       </TableRow>
@@ -162,12 +157,13 @@ export function DataTable<T>({
                   </React.Fragment>
                 ))
               ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No hay resultados.
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={columns.length} className="h-40 text-center">
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <SearchX className="h-8 w-8 opacity-40" />
+                      <p className="text-sm font-medium">Sin resultados</p>
+                      <p className="text-xs">Intentá ajustar los filtros o la búsqueda</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}
@@ -176,16 +172,14 @@ export function DataTable<T>({
         </div>
       </div>
 
-      {/* Paginación */}
       {pagination && <DataTablePagination table={table} />}
 
-      {/* Botones de desplazamiento fijos en la esquina inferior derecha de la pantalla */}
       {accessibilityMode && (
         <div className="fixed bottom-14 right-14 flex gap-2 z-50">
           <Button
             size="sm"
             variant="default"
-            className="rounded-full shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
+            className="rounded-full shadow-lg"
             onClick={() => handleScroll("left")}
             aria-label="Desplazar a la izquierda"
           >
@@ -194,7 +188,7 @@ export function DataTable<T>({
           <Button
             size="sm"
             variant="default"
-            className="rounded-full shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
+            className="rounded-full shadow-lg"
             onClick={() => handleScroll("right")}
             aria-label="Desplazar a la derecha"
           >
@@ -210,16 +204,8 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   const columnFilterValue = column.getFilterValue();
   const { filterVariant, filterOptions } = column.columnDef.meta ?? {};
 
-  // Parse el filterValue si es un string JSON
   const parsedFilterValue = React.useMemo(() => {
-    if (typeof columnFilterValue === 'string' && columnFilterValue.startsWith('{')) {
-      try {
-        return JSON.parse(columnFilterValue);
-      } catch {
-        return columnFilterValue;
-      }
-    }
-    if (typeof columnFilterValue === 'string' && columnFilterValue.startsWith('[')) {
+    if (typeof columnFilterValue === 'string' && (columnFilterValue.startsWith('{') || columnFilterValue.startsWith('['))) {
       try {
         return JSON.parse(columnFilterValue);
       } catch {
@@ -236,13 +222,8 @@ function Filter({ column }: { column: Column<any, unknown> }) {
         : undefined;
       const newFrom = value;
       const currentTo = currentValue?.to ?? "";
-      // Solo setear si hay al menos un valor válido
       if (newFrom !== "" || currentTo !== "") {
-        const filterValue = {
-          from: newFrom,
-          to: currentTo,
-        };
-        column.setFilterValue(JSON.stringify(filterValue));
+        column.setFilterValue(JSON.stringify({ from: newFrom, to: currentTo }));
       } else {
         column.setFilterValue(undefined);
       }
@@ -257,13 +238,8 @@ function Filter({ column }: { column: Column<any, unknown> }) {
         : undefined;
       const newTo = value;
       const currentFrom = currentValue?.from ?? "";
-
       if (currentFrom !== "" || newTo !== "") {
-        const filterValue = {
-          from: currentFrom,
-          to: newTo,
-        };
-        column.setFilterValue(JSON.stringify(filterValue));
+        column.setFilterValue(JSON.stringify({ from: currentFrom, to: newTo }));
       } else {
         column.setFilterValue(undefined);
       }
@@ -272,52 +248,30 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   );
 
   return filterVariant === "range" ? (
-    <div>
-      <div className="flex space-x-2">
-        {/* See faceted column filters example for min max values functionality */}
-        <DebouncedInput
-          type="number"
-          value={
-            (
-              parsedFilterValue as {
-                from: string | number;
-                to: string | number;
-              }
-            )?.from ?? ""
-          }
-          onChange={handleFromChange}
-          placeholder={`Min`}
-          className="w-24 border shadow rounded"
-        />
-        <DebouncedInput
-          type="number"
-          value={
-            (
-              parsedFilterValue as {
-                from: string | number;
-                to: string | number;
-              }
-            )?.to ?? ""
-          }
-          onChange={handleToChange}
-          placeholder={`Max`}
-          className="w-24 border shadow rounded"
-        />
-      </div>
-      <div className="h-1" />
+    <div className="flex gap-1.5">
+      <DebouncedInput
+        type="number"
+        value={(parsedFilterValue as { from: string | number; to: string | number })?.from ?? ""}
+        onChange={handleFromChange}
+        placeholder="Mín"
+        className="w-20"
+      />
+      <DebouncedInput
+        type="number"
+        value={(parsedFilterValue as { from: string | number; to: string | number })?.to ?? ""}
+        onChange={handleToChange}
+        placeholder="Máx"
+        className="w-20"
+      />
     </div>
   ) : filterVariant === "date" ? (
     <DatePicker
-      onChange={(e) => {
-        column.setFilterValue(e);
-      }}
+      onChange={(e) => column.setFilterValue(e)}
       defaultValue={columnFilterValue?.toString()}
     />
   ) : filterVariant === "date-range" ? (
     <DateRangePicker
-      onChange={(range) => {
-        column.setFilterValue(JSON.stringify(range));
-      }}
+      onChange={(range) => column.setFilterValue(JSON.stringify(range))}
       defaultValue={parsedFilterValue as { from: string; to: string } | null}
     />
   ) : filterVariant === "multi-select" && filterOptions ? (
@@ -332,9 +286,8 @@ function Filter({ column }: { column: Column<any, unknown> }) {
       className="w-full"
     />
   ) : (
-    // See faceted column filters example for datalist search suggestions
     <DebouncedInput
-      className="w-36 border shadow rounded"
+      className="w-36"
       onChange={(value) => column.setFilterValue(value)}
       type="text"
       value={(columnFilterValue ?? "") as string}
@@ -342,7 +295,6 @@ function Filter({ column }: { column: Column<any, unknown> }) {
   );
 }
 
-// A typical debounced input react component
 function DebouncedInput({
   value: initialValue,
   onChange,
@@ -363,7 +315,6 @@ function DebouncedInput({
     const timeout = setTimeout(() => {
       onChange(value);
     }, debounce);
-
     return () => clearTimeout(timeout);
   }, [value, debounce]);
 
@@ -374,13 +325,10 @@ function DebouncedInput({
       onChange={(e) => {
         const newValue =
           props.type === "number"
-            ? e.target.value === ""
-              ? ""
-              : Number(e.target.value)
+            ? e.target.value === "" ? "" : Number(e.target.value)
             : e.target.value;
         setValue(newValue);
       }}
-      className="mt-2 w-full px-3 py-2 border rounded-md focus:outline-none"
     />
   );
 }

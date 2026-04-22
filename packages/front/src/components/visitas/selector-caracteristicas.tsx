@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { CaracteristicaVisitante } from '@/types'
 import { useGetCaracteristicasActivasQuery } from '@/hooks/caracteristica-visitante'
 import { IconoCaracteristica } from './icono-caracteristica'
+import { Check } from 'lucide-react'
 
 interface Props {
   value: number[]
@@ -24,7 +25,7 @@ export function SelectorCaracteristicas({ value, onChange }: Props) {
   if (!caracteristicas.length) return null
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2.5">
       {caracteristicas.map((c: CaracteristicaVisitante) => {
         const seleccionado = value.includes(c.id!)
         return (
@@ -33,17 +34,18 @@ export function SelectorCaracteristicas({ value, onChange }: Props) {
             type="button"
             onClick={() => toggle(c.id!)}
             className={cn(
-              'flex items-center gap-2 px-4 py-3 rounded-2xl border-2 text-base font-semibold',
-              'transition-all active:scale-95 touch-manipulation select-none',
+              'inline-flex items-center gap-2 px-4 py-3 rounded-2xl border-2 text-base font-semibold',
+              'transition-all duration-150 active:scale-95 touch-manipulation select-none cursor-pointer',
               seleccionado
-                ? 'border-indigo-500 bg-indigo-100 text-indigo-800 shadow-sm'
+                ? 'border-indigo-500 bg-indigo-50 text-indigo-800 shadow-sm'
                 : 'border-border bg-card hover:border-indigo-300 text-foreground'
             )}
+            aria-pressed={seleccionado}
           >
             <IconoCaracteristica nombre={c.icono} className="h-5 w-5 shrink-0" />
             <span>{c.nombre}</span>
             {seleccionado && (
-              <span className="ml-1 text-indigo-500 font-bold text-lg leading-none">✓</span>
+              <Check className="h-4 w-4 text-indigo-500 shrink-0" strokeWidth={2.5} />
             )}
           </button>
         )
