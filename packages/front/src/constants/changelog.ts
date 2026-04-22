@@ -12,6 +12,18 @@ export type ChangelogEntry = {
 
 export const CHANGELOG_DATA: ChangelogEntry[] = [
     {
+        date: '21 de abril, 2026',
+        changes: [
+            { type: 'new', text: 'Se agrega dashboard de artículos ancla con semáforo de stock (crítico, atención, normal)' },
+            { type: 'new', text: 'Se agrega gestión de umbrales de stock (mínimo, seguridad, máximo) por variante de artículo' },
+            { type: 'new', text: 'Se agrega sección Precios en el menú lateral con Listas de precios' },
+            { type: 'new', text: 'Se agrega pestaña de Precios en la ficha de artículo' },
+            { type: 'new', text: 'Se agrega campo de costo en artículos con control de acceso por permiso' },
+            { type: 'improved', text: 'Se mejora la ficha de artículo con pestañas de Umbrales y Precios' },
+            { type: 'improved', text: 'Se muestra precio de lista por defecto en la tabla de artículos' },
+        ],
+    },
+    {
         date: '13 de abril, 2026',
         changes: [
             { type: 'new', text: 'Se agrega registro de visitas al local con selector de tipo de visitante y características' },

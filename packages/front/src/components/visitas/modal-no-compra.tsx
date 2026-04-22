@@ -11,7 +11,7 @@ import { useGetArticulosQuery } from '@/hooks/articulos'
 import { useGetClientesQuery } from '@/hooks/cliente'
 import { useResolverNoCompraMutation } from '@/hooks/visita'
 import { useToast } from '@/hooks/use-toast'
-import { XCircle, X } from 'lucide-react'
+import { XCircle, X, Check } from 'lucide-react'
 import { RazonNoCompra, SubRazonNoCompra } from '@/types'
 import { cn } from '@/lib/utils'
 
@@ -108,14 +108,16 @@ export function ModalNoCompra({ visitaId, onClose }: Props) {
                   type="button"
                   onClick={() => { setRazonId(r.id!); setSubRazonId(null) }}
                   className={cn(
-                    'rounded-2xl border-2 py-4 px-4 text-left font-semibold text-sm',
-                    'transition-all active:scale-95 touch-manipulation select-none',
+                    'relative rounded-2xl border-2 py-4 px-4 text-left font-semibold text-sm',
+                    'transition-all active:scale-95 touch-manipulation select-none cursor-pointer',
                     razonId === r.id
                       ? 'border-red-500 bg-red-50 text-red-800 shadow-sm'
                       : 'border-border bg-card hover:border-red-300'
                   )}
                 >
-                  {razonId === r.id && <span className="text-red-500 font-bold mr-1">✓</span>}
+                  {razonId === r.id && (
+                    <Check className="inline h-3.5 w-3.5 text-red-500 mr-1 mb-0.5" strokeWidth={3} />
+                  )}
                   {r.nombre}
                 </button>
               ))}
@@ -133,14 +135,16 @@ export function ModalNoCompra({ visitaId, onClose }: Props) {
                     type="button"
                     onClick={() => setSubRazonId(subRazonId === s.id ? null : s.id!)}
                     className={cn(
-                      'rounded-xl border-2 py-2.5 px-4 text-sm font-semibold',
-                      'transition-all active:scale-95 touch-manipulation select-none',
+                      'inline-flex items-center gap-1.5 rounded-xl border-2 py-2.5 px-4 text-sm font-semibold',
+                      'transition-all active:scale-95 touch-manipulation select-none cursor-pointer',
                       subRazonId === s.id
                         ? 'border-red-400 bg-red-50 text-red-700'
                         : 'border-border bg-card hover:border-red-200'
                     )}
                   >
-                    {subRazonId === s.id && <span className="text-red-500 font-bold mr-1">✓</span>}
+                    {subRazonId === s.id && (
+                      <Check className="h-3.5 w-3.5 text-red-500 shrink-0" strokeWidth={3} />
+                    )}
                     {s.nombre}
                   </button>
                 ))}

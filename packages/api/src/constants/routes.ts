@@ -1,12 +1,18 @@
 import { PERMISOS } from './permisos';
 
 export const MENU = [
-    // General
+    // Módulo: Precios
     {
-        id: PERMISOS.RUTA_DASHBOARD,
-        title: 'Inicio',
-        url: '/',
-        icon: 'Home',
+        title: 'Precios',
+        icon: 'Tag',
+        items: [
+            {
+                id: PERMISOS.RUTA_LISTAS_PRECIOS,
+                title: 'Listas de precios',
+                url: '/listas-de-precios',
+                icon: 'BadgeDollarSign',
+            },
+        ]
     },
 
     // Módulo: Catálogo
@@ -160,6 +166,12 @@ export const MENU = [
         title: 'Inventario',
         icon: 'Warehouse',
         items: [
+            {
+                id: PERMISOS.RUTA_DASHBOARD,
+                title: 'Dashboard',
+                url: '/dashboard',
+                icon: 'LayoutDashboard',
+            },
             {
                 id: PERMISOS.RUTA_MOVIMIENTOS,
                 title: 'Movimientos',

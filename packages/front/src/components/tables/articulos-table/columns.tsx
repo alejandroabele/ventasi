@@ -21,13 +21,8 @@ import { useDeleteArticulosMutation } from '@/hooks/articulos';
 
 const baseUrl = '/articulos';
 
-const formatPrecio = (precio: number): string => {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 2,
-  }).format(precio);
-};
+const formatMoney = (valor: number): string =>
+  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(valor);
 
 const DataTableRowActions = ({ data }: { data: Articulo }) => {
   const { mutate } = useDeleteArticulosMutation();
@@ -36,10 +31,7 @@ const DataTableRowActions = ({ data }: { data: Articulo }) => {
   return (
     <>
       <DeleteDialog
-        onDelete={() => {
-          mutate(data.id!);
-          setOpenDelete(false);
-        }}
+        onDelete={() => { mutate(data.id!); setOpenDelete(false); }}
         open={openDelete}
         onClose={() => setOpenDelete(false)}
       />
@@ -56,16 +48,14 @@ const DataTableRowActions = ({ data }: { data: Articulo }) => {
             <DropdownMenuItem>Ver / Editar</DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpenDelete(true)}>
-            Eliminar
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenDelete(true)}>Eliminar</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
   );
 };
 
-export const columns: ColumnDef<Articulo>[] = [
+export const getColumns = (puedeVerCosto: boolean): ColumnDef<Articulo>[] => [
   {
     accessorKey: 'nombre',
     header: 'Nombre',
@@ -79,37 +69,44 @@ export const columns: ColumnDef<Articulo>[] = [
     accessorKey: 'sku',
     header: 'SKU',
     cell: ({ row }) => (
-      <CellColumn>
-        <span className="font-mono text-sm">{row.getValue('sku')}</span>
-      </CellColumn>
+      <CellColumn><span className="font-mono text-sm">{row.getValue('sku')}</span></CellColumn>
     ),
   },
   {
-    accessorKey: 'precio',
-    header: 'Precio',
+    id: 'precioDefault',
+    header: 'Precio venta',
     cell: ({ row }) => {
-      const precio = row.getValue<number | undefined>('precio');
-      return <CellColumn>{precio != null ? formatPrecio(precio) : '—'}</CellColumn>;
+      const precio = row.original.precioDefault;
+      return <CellColumn>{precio != null ? formatMoney(precio) : '—'}</CellColumn>;
     },
     enableColumnFilter: false,
   },
+  ...(puedeVerCosto ? [{
+    id: 'costo',
+    header: 'Costo',
+    cell: ({ row }: { row: { original: Articulo } }) => {
+      const costo = row.original.costo;
+      return (
+        <CellColumn>
+          <span className="text-amber-700 dark:text-amber-400 font-medium">
+            {costo != null ? formatMoney(costo) : '—'}
+          </span>
+        </CellColumn>
+      );
+    },
+    enableColumnFilter: false,
+  } as ColumnDef<Articulo>] : []),
   {
     id: 'subgrupo',
     header: 'Subgrupo',
-    cell: ({ row }) => (
-      <CellColumn>{row.original.subgrupo?.nombre || '—'}</CellColumn>
-    ),
+    cell: ({ row }) => <CellColumn>{row.original.subgrupo?.nombre || '—'}</CellColumn>,
   },
   {
     id: 'variantes',
     header: 'Variantes',
     cell: ({ row }) => {
       const total = row.original.totalVariantes ?? 0;
-      return (
-        <Badge variant={total > 0 ? 'default' : 'secondary'}>
-          {total}
-        </Badge>
-      );
+      return <Badge variant={total > 0 ? 'default' : 'secondary'}>{total}</Badge>;
     },
     enableSorting: false,
     enableColumnFilter: false,
@@ -121,13 +118,7 @@ export const columns: ColumnDef<Articulo>[] = [
       const stock = row.original.stockTotal;
       if (!stock) return <Badge variant="secondary">0</Badge>;
       const stockNum = Number(stock);
-      return (
-        <Badge
-          variant={stockNum === 0 ? 'destructive' : stockNum <= 5 ? 'outline' : 'default'}
-        >
-          {stock}
-        </Badge>
-      );
+      return <Badge variant={stockNum === 0 ? 'destructive' : stockNum <= 5 ? 'outline' : 'default'}>{stock}</Badge>;
     },
     enableSorting: false,
     enableColumnFilter: false,

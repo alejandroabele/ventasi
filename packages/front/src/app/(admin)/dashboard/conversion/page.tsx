@@ -4,7 +4,7 @@ import React from 'react'
 import { PageTitle } from '@/components/ui/page-title'
 import { useGetDashboardConversionQuery } from '@/hooks/visita'
 import { DashboardRazon, DashboardTipo, TipoVisitante } from '@/types'
-import { getTipoEmoji, getTipoLabel } from '@/components/visitas/selector-tipo-visitante'
+import { getTipoIcono, getTipoLabel, getTipoColor, getTipoBg } from '@/components/visitas/selector-tipo-visitante'
 import { Users, ShoppingBag, TrendingUp, ChevronDown, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -113,6 +113,18 @@ function TablaRazonesNoCompra({ razones }: { razones: DashboardRazon[] }) {
   )
 }
 
+function CeldaTipo({ tipo }: { tipo: TipoVisitante }) {
+  const Icono = getTipoIcono(tipo)
+  return (
+    <span className="flex items-center gap-2">
+      <span className={cn('rounded-md p-1', getTipoBg(tipo))}>
+        <Icono className={cn('h-3.5 w-3.5', getTipoColor(tipo))} strokeWidth={1.75} />
+      </span>
+      {getTipoLabel(tipo)}
+    </span>
+  )
+}
+
 function TablaCruzadaTipoVisitante({ tablaTipos }: { tablaTipos: DashboardTipo[] }) {
   if (!tablaTipos.length) {
     return <p className="text-sm text-muted-foreground py-4">Sin datos en este período</p>
@@ -133,9 +145,8 @@ function TablaCruzadaTipoVisitante({ tablaTipos }: { tablaTipos: DashboardTipo[]
         <tbody>
           {tablaTipos.map((fila) => (
             <tr key={fila.tipo} className="border-b last:border-0">
-              <td className="py-2.5 flex items-center gap-2">
-                <span>{getTipoEmoji(fila.tipo as TipoVisitante)}</span>
-                <span>{getTipoLabel(fila.tipo as TipoVisitante)}</span>
+              <td className="py-2.5">
+                <CeldaTipo tipo={fila.tipo as TipoVisitante} />
               </td>
               <td className="py-2.5 text-right">{fila.entradas}</td>
               <td className="py-2.5 text-right text-green-600 font-medium">{fila.compras}</td>

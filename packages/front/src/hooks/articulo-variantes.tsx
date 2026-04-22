@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchGrilla, registrarIngreso, ajustarCantidad, remove } from '@/services/articulo-variantes';
-import { IngresoItem } from '@/types';
+import { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove } from '@/services/articulo-variantes';
+import { BulkUmbralPayload, IngresoItem, UmbralVariante } from '@/types';
 
 export const useGetGrillaQuery = (articuloId: number) => {
     return useQuery({
@@ -44,6 +44,44 @@ export const useDeleteVarianteMutation = () => {
             remove(articuloId, varianteId),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
+        },
+    });
+};
+
+export const useActualizarUmbralVarianteMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['actualizar-umbral-variante'],
+        mutationFn: ({ articuloId, varianteId, dto }: { articuloId: number; varianteId: number; dto: UmbralVariante }) =>
+            actualizarUmbrales(articuloId, varianteId, dto),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-anclas'] });
+        },
+    });
+};
+
+export const useBulkUmbralesMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['bulk-umbrales'],
+        mutationFn: (dto: BulkUmbralPayload) => bulkUmbrales(dto),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-anclas'] });
+        },
+    });
+};
+
+export const useCopiarUmbralesMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['copiar-umbrales'],
+        mutationFn: ({ articuloId, varianteId }: { articuloId: number; varianteId: number }) =>
+            copiarUmbrales(articuloId, varianteId),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-anclas'] });
         },
     });
 };

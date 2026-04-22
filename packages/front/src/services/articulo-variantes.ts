@@ -1,4 +1,4 @@
-import { GrillaArticulo, IngresoItem } from '@/types';
+import { GrillaArticulo, IngresoItem, UmbralVariante, BulkUmbralPayload } from '@/types';
 import fetchClient from '@/lib/api-client';
 
 const basePath = 'articulos';
@@ -15,8 +15,20 @@ const ajustarCantidad = async (articuloId: number, varianteId: number, cantidad:
     return fetchClient<void>(`${basePath}/${articuloId}/variantes/${varianteId}`, 'PATCH', { cantidad });
 };
 
+const actualizarUmbrales = async (articuloId: number, varianteId: number, dto: UmbralVariante): Promise<void> => {
+    return fetchClient<void>(`${basePath}/${articuloId}/variantes/${varianteId}/umbrales`, 'PATCH', dto);
+};
+
+const bulkUmbrales = async (dto: BulkUmbralPayload): Promise<GrillaArticulo> => {
+    return fetchClient<GrillaArticulo>(`${basePath}/variantes/bulk-umbrales`, 'POST', dto);
+};
+
+const copiarUmbrales = async (articuloId: number, varianteId: number): Promise<GrillaArticulo> => {
+    return fetchClient<GrillaArticulo>(`${basePath}/variantes/${varianteId}/copiar-umbrales`, 'POST');
+};
+
 const remove = async (articuloId: number, varianteId: number): Promise<void> => {
     return fetchClient<void>(`${basePath}/${articuloId}/variantes/${varianteId}`, 'DELETE');
 };
 
-export { fetchGrilla, registrarIngreso, ajustarCantidad, remove };
+export { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove };

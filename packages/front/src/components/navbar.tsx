@@ -14,7 +14,7 @@ export default function Navbar() {
   const router = useRouter()
 
   return (
-    <nav className="flex border-b justify-between px-4 py-2 items-center">
+    <nav className="sticky top-0 z-10 flex border-b justify-between px-4 py-2 items-center bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80 shadow-sm">
       {/* Left section with menu trigger and back button */}
       <div className="flex items-center gap-1.5">
         <SidebarTrigger />

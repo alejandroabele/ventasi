@@ -12,10 +12,14 @@ export default {
     	extend: {
     		fontFamily: {
     			sans: [
-    				'var(--font-geist-sans)'
+    				'var(--font-geist-sans)',
+    				'var(--font-sans)',
+    				'system-ui',
+    				'sans-serif',
     			],
     			mono: [
-    				'var(--font-geist-mono)'
+    				'var(--font-geist-mono)',
+    				'monospace',
     			]
     		},
     		colors: {

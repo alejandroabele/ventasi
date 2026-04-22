@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateArticuloDto {
   @IsNumber()
@@ -27,7 +27,8 @@ export class CreateArticuloDto {
 
   @IsOptional()
   @IsNumber()
-  precio?: number;
+  @Min(0)
+  costo?: number;
 
   @IsOptional()
   @IsNumber()
@@ -36,4 +37,12 @@ export class CreateArticuloDto {
   @IsOptional()
   @IsNumber()
   curvaColorId?: number;
+
+  @IsOptional()
+  @IsIn(['continuidad', 'temporada'])
+  tipoContinuidad?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  esAncla?: boolean;
 }
