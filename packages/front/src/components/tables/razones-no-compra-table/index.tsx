@@ -27,7 +27,12 @@ export function RazonesNoCompraTable() {
     pageSize: 10,
   });
 
-  const { data = [], isLoading } = useGetRazonesNoCompraQuery();
+  const { data = [], isLoading } = useGetRazonesNoCompraQuery({
+    pagination,
+    columnFilters,
+    sorting,
+    globalFilter,
+  });
 
   const table = useReactTable({
     data,
@@ -41,6 +46,9 @@ export function RazonesNoCompraTable() {
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
     state: {
       sorting,
       columnFilters,

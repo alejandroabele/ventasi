@@ -40,6 +40,9 @@ export class Articulo extends BaseEntity {
   @MoneyColumn({ name: 'costo', default: '0.0000' })
   costo: number;
 
+  @Column({ name: 'alicuota_iva', type: 'varchar', length: 10, default: '21' })
+  alicuotaIva: string;
+
   @Column({ name: 'tipo_continuidad', type: 'varchar', length: 20, nullable: true })
   tipoContinuidad: string;
 

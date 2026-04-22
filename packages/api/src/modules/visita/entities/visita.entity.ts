@@ -48,6 +48,9 @@ export class Visita extends BaseEntity {
   @JoinColumn({ name: 'movimiento_id' })
   movimiento?: MovimientoInventario;
 
+  @Column({ name: 'venta_id', type: 'int', nullable: true })
+  ventaId?: number;
+
   @Column({ name: 'razon_id', type: 'int', nullable: true })
   razonId?: number;
 

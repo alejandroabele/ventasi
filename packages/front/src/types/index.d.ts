@@ -294,7 +294,7 @@ export type CurvaTalleDetalle = { id?: number; curvaId: number; talleId: number;
 export type Articulo = {
     id?: number; nombre: string; descripcion?: string;
     codigo: string; sku: string; codigoBarras?: string; codigoQr?: string;
-    costo?: number; subgrupoId: number;
+    costo?: number; alicuotaIva?: string; subgrupoId: number;
     curvaColorId?: number; curvaId?: number;
     tipoContinuidad?: 'continuidad' | 'temporada';
     esAncla?: boolean;
@@ -353,7 +353,11 @@ export type ArticuloAncla = {
 // --- Inventario ---
 export type Ubicacion = { id?: number; nombre: string; descripcion?: string; }
 export type Proveedor = { id?: number; nombre: string; cuit?: string; telefono?: string; email?: string; }
-export type Cliente = { id?: number; nombre: string; email?: string; telefono?: string; }
+export type Cliente = {
+    id?: number; nombre: string; email?: string; telefono?: string;
+    cuit?: string; condicionIva?: string;
+    domicilio?: string; localidad?: string; provincia?: string; codigoPostal?: string;
+}
 
 export type TipoMovimiento = 'MOVIMIENTO' | 'ARREGLO';
 
@@ -446,6 +450,99 @@ export type Visita = {
     subRazon?: SubRazonNoCompra;
     articulo?: Articulo;
     cliente?: Cliente;
+}
+
+// --- Ventas ---
+export type Vendedor = {
+    id?: number;
+    nombre: string;
+    apellido: string;
+    dni?: string;
+    codigo: string;
+    activo?: number;
+}
+
+export type CuotaMetodoPago = {
+    id?: number;
+    metodoPagoId: number;
+    cantidadCuotas: number;
+    tasaInteres: string;
+    activo?: number;
+}
+
+export type MetodoPago = {
+    id?: number;
+    nombre: string;
+    tipo: 'efectivo' | 'tarjeta_credito' | 'tarjeta_debito' | 'transferencia' | 'qr' | 'otro';
+    activo?: number;
+    cuotas?: CuotaMetodoPago[];
+}
+
+export type VentaDetalle = {
+    id?: number;
+    ventaId?: number;
+    articuloVarianteId: number;
+    cantidad: string;
+    precioUnitario: string;
+    descuentoPorcentaje?: string;
+    descuentoMonto?: string;
+    subtotalLinea: string;
+    articuloVariante?: ArticuloVariante;
+}
+
+export type VentaFormaPago = {
+    id?: number;
+    ventaId?: number;
+    metodoPagoId: number;
+    cuotaMetodoPagoId?: number;
+    cantidadCuotas: number;
+    tasaInteres: string;
+    montoBase: string;
+    montoConInteres: string;
+    metodoPago?: MetodoPago;
+    cuotaMetodoPago?: CuotaMetodoPago;
+}
+
+export type Comprobante = {
+    id?: number;
+    ventaId: number;
+    tipo: 'fiscal' | 'manual';
+    tipoComprobante: string;
+    puntoVenta: string;
+    numero?: number;
+    fechaEmision?: string;
+    cae?: string;
+    caeVencimiento?: string;
+    estado: 'pendiente' | 'pendiente_cae' | 'emitido' | 'anulado' | 'error';
+    formatoDefault?: 'a4' | 'termica';
+    datosArca?: string;
+}
+
+export type EstadoVenta = 'borrador' | 'confirmada' | 'anulada';
+
+export type Venta = {
+    id?: number;
+    visitaId: number;
+    clienteId: number;
+    vendedorId: number;
+    listaPrecioId: number;
+    tipoComprobante: string;
+    estado?: EstadoVenta;
+    fecha: string;
+    subtotal: string;
+    descuentoPorcentaje?: string;
+    descuentoMonto?: string;
+    recargoPorcentaje?: string;
+    recargoMonto?: string;
+    baseImponible: string;
+    iva: string;
+    total: string;
+    cliente?: Cliente;
+    vendedor?: Vendedor;
+    listaPrecio?: ListaPrecio;
+    detalles?: VentaDetalle[];
+    formasPago?: VentaFormaPago[];
+    comprobante?: Comprobante;
 }
 
 export type MetricasDia = {

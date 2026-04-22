@@ -129,6 +129,20 @@ export const MENU = [
         ]
     },
 
+    // Módulo: Ventas
+    {
+        title: 'Ventas',
+        icon: 'ShoppingCart',
+        items: [
+            {
+                id: PERMISOS.RUTA_VENTAS,
+                title: 'Ventas',
+                url: '/ventas',
+                icon: 'Receipt',
+            },
+        ]
+    },
+
     // Módulo: Visitas y Conversión
     {
         title: 'Visitas',
@@ -212,6 +226,18 @@ export const MENU = [
         title: 'Configuración',
         icon: 'SlidersHorizontal',
         items: [
+            {
+                id: PERMISOS.RUTA_VENDEDORES,
+                title: 'Vendedores',
+                url: '/config/vendedores',
+                icon: 'UserTie',
+            },
+            {
+                id: PERMISOS.RUTA_METODOS_PAGO,
+                title: 'Métodos de pago',
+                url: '/config/metodos-pago',
+                icon: 'CreditCard',
+            },
             {
                 id: PERMISOS.RUTA_EJEMPLO_CONFIG,
                 title: 'Configuración de Ejemplo',

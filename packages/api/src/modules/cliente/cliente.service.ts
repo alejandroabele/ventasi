@@ -36,7 +36,7 @@ export class ClienteService {
   async remove(id: number) {
     const tieneDependencias = await this.tieneDependencias(id);
     if (tieneDependencias) {
-      throw new BadRequestException('No se puede eliminar el cliente porque tiene movimientos asociados.');
+      throw new BadRequestException('No se puede eliminar el cliente porque tiene movimientos o ventas asociadas.');
     }
     const entity = await this.findOne(id);
     await this.repo.delete({ id });
@@ -47,9 +47,10 @@ export class ClienteService {
     const count = await this.repo.manager.query(
       `SELECT (
         (SELECT COUNT(*) FROM movimiento_inventario WHERE procedencia_cliente_id = ? AND deleted_at IS NULL) +
-        (SELECT COUNT(*) FROM movimiento_inventario WHERE destino_cliente_id = ? AND deleted_at IS NULL)
+        (SELECT COUNT(*) FROM movimiento_inventario WHERE destino_cliente_id = ? AND deleted_at IS NULL) +
+        (SELECT COUNT(*) FROM venta WHERE cliente_id = ? AND deleted_at IS NULL)
       ) AS total`,
-      [id, id],
+      [id, id, id],
     );
     return parseInt(count[0].total) > 0;
   }

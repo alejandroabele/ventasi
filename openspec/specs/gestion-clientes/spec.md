@@ -1,11 +1,19 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Crear cliente
-El sistema SHALL permitir crear un cliente con nombre, email y teléfono opcionales.
+El sistema SHALL permitir crear un cliente con nombre, email y teléfono opcionales, y opcionalmente con datos fiscales: CUIT, condición IVA (`RI` | `CF` | `MONO` | `EXENTO` | `NO_RESP`), domicilio, localidad, provincia y código postal. Si se ingresa CUIT, el sistema SHALL ofrecer auto-completado de datos fiscales consultando el padrón ARCA.
 
-#### Scenario: Creación exitosa
-- **WHEN** el usuario envía nombre válido
-- **THEN** se crea el cliente y se retorna con id asignado
+#### Scenario: Creación exitosa sin datos fiscales
+- **WHEN** el usuario envía nombre válido sin datos fiscales
+- **THEN** se crea el cliente y se retorna con id asignado, campos fiscales en null
+
+#### Scenario: Creación con CUIT y auto-completado de padrón
+- **WHEN** el usuario ingresa un CUIT válido en el formulario
+- **THEN** el sistema consulta el padrón ARCA y pre-completa razón social, condición IVA y domicilio
+
+#### Scenario: CUIT duplicado
+- **WHEN** el usuario envía un CUIT que ya existe en otro cliente activo
+- **THEN** el sistema retorna error de validación indicando CUIT duplicado
 
 ---
 
@@ -23,7 +31,7 @@ El sistema SHALL retornar la lista paginada de clientes activos con filtro por n
 ---
 
 ### Requirement: Editar cliente
-El sistema SHALL permitir modificar los campos de un cliente existente.
+El sistema SHALL permitir modificar todos los campos de un cliente existente incluyendo los datos fiscales.
 
 #### Scenario: Edición exitosa
 - **WHEN** el usuario envía datos válidos para un cliente existente
@@ -32,12 +40,12 @@ El sistema SHALL permitir modificar los campos de un cliente existente.
 ---
 
 ### Requirement: Eliminar cliente
-El sistema SHALL permitir eliminar (soft delete) un cliente sin movimientos asociados.
+El sistema SHALL permitir eliminar (soft delete) un cliente sin ventas ni movimientos asociados.
 
 #### Scenario: Eliminación exitosa
-- **WHEN** el cliente no tiene movimientos asociados
+- **WHEN** el cliente no tiene ventas ni movimientos asociados
 - **THEN** se marca como eliminado y no aparece en listados
 
-#### Scenario: Eliminación bloqueada
-- **WHEN** el cliente tiene movimientos registrados
+#### Scenario: Eliminación bloqueada por venta
+- **WHEN** el cliente tiene ventas registradas
 - **THEN** el sistema retorna error indicando que no se puede eliminar

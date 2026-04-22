@@ -24,4 +24,8 @@ const remove = async (id: number): Promise<void> => {
   return fetchClient<void>(`${basePath}/${id}`, 'DELETE');
 };
 
-export { fetch, fetchById, create, edit, remove };
+const fetchPadron = async (cuit: string): Promise<unknown> => {
+  return fetchClient<unknown>(`${basePath}/padron/${cuit}`, 'GET');
+};
+
+export { fetch, fetchById, create, edit, remove, fetchPadron };

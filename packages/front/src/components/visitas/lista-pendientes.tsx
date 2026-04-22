@@ -66,7 +66,11 @@ export function ListaPendientes({ onNoCompra }: Props) {
             {/* Acciones */}
             <div className="grid grid-cols-2 border-t">
               <button
-                onClick={() => router.push(`/movimientos/crear?visitaId=${visita.id}`)}
+                onClick={() => {
+                  const params = new URLSearchParams({ visitaId: String(visita.id) });
+                  if (visita.clienteId) params.set('clienteId', String(visita.clienteId));
+                  router.push(`/ventas/nueva?${params.toString()}`);
+                }}
                 className={cn(
                   'flex items-center justify-center gap-2.5 py-5',
                   'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800',
