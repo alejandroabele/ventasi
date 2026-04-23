@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Printer, Receipt, Zap, CheckCircle2, Settings2 } from 'lucide-react';
