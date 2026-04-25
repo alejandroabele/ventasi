@@ -221,6 +221,20 @@ export const MENU = [
         ]
     },
 
+    // Etiquetas
+    {
+        title: 'Etiquetas',
+        icon: 'Tag',
+        items: [
+            {
+                id: PERMISOS.RUTA_ETIQUETAS,
+                title: 'Nueva impresión',
+                url: '/etiquetas/nueva',
+                icon: 'Printer',
+            },
+        ]
+    },
+
     // Configuración
     {
         title: 'Configuración',
@@ -237,6 +251,12 @@ export const MENU = [
                 title: 'Métodos de pago',
                 url: '/config/metodos-pago',
                 icon: 'CreditCard',
+            },
+            {
+                id: PERMISOS.RUTA_ETIQUETAS,
+                title: 'Impresora de etiquetas',
+                url: '/config/impresora-etiquetas',
+                icon: 'PrinterCheck',
             },
             {
                 id: PERMISOS.RUTA_EJEMPLO_CONFIG,

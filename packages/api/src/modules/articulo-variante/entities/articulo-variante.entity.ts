@@ -41,4 +41,7 @@ export class ArticuloVariante extends BaseEntity {
 
   @Column({ name: 'stock_maximo', type: 'int', nullable: true })
   stockMaximo: number;
+
+  @Column({ name: 'codigo_barras', type: 'varchar', length: 100, nullable: true })
+  codigoBarras: string;
 }

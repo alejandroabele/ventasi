@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useGetGrillaQuery, useRegistrarIngresoMutation, useAjustarCantidadMutation } from '@/hooks/articulo-variantes';
+import { useGetGrillaQuery, useRegistrarIngresoMutation, useAjustarCantidadMutation, useActualizarCodigoBarrasMutation } from '@/hooks/articulo-variantes';
 import { useAddTalleArticuloMutation } from '@/hooks/articulos';
 import { useGetTallesQuery } from '@/hooks/talles';
 import { CeldaGrilla, GrillaColor, Talle, IngresoItem } from '@/types';
@@ -82,7 +82,9 @@ export function GrillaVariantes({ articuloId }: GrillaVariantesProps) {
   // Estado para diálogo de ajuste individual
   const [celdaSeleccionada, setCeldaSeleccionada] = React.useState<CeldaGrilla | null>(null);
   const [nuevaCantidad, setNuevaCantidad] = React.useState('');
+  const [nuevoCodigoBarras, setNuevoCodigoBarras] = React.useState('');
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const { mutateAsync: actualizarCodigo } = useActualizarCodigoBarrasMutation();
 
   // Estado para sheet de ingreso masivo
   const [sheetOpen, setSheetOpen] = React.useState(false);
@@ -124,6 +126,7 @@ export function GrillaVariantes({ articuloId }: GrillaVariantesProps) {
     };
     setCeldaSeleccionada(celdaEfectiva);
     setNuevaCantidad(celda?.cantidad ?? '0');
+    setNuevoCodigoBarras('');
     setDialogOpen(true);
   };
 
@@ -136,6 +139,13 @@ export function GrillaVariantes({ articuloId }: GrillaVariantesProps) {
           varianteId: celdaSeleccionada.varianteId,
           cantidad: nuevaCantidad,
         });
+        if (nuevoCodigoBarras.trim() !== '') {
+          await actualizarCodigo({
+            articuloId,
+            varianteId: celdaSeleccionada.varianteId,
+            codigoBarras: nuevoCodigoBarras.trim() || null,
+          });
+        }
       } else {
         // Potencial: registrar como primer ingreso
         await registrarIngreso({
@@ -368,6 +378,20 @@ export function GrillaVariantes({ articuloId }: GrillaVariantesProps) {
                 autoFocus
               />
             </div>
+            {celdaSeleccionada?.varianteId && (
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Código de barras</label>
+                <Input
+                  type="text"
+                  value={nuevoCodigoBarras}
+                  onChange={(e) => setNuevoCodigoBarras(e.target.value)}
+                  placeholder="Dejá vacío para auto-generar"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Si está vacío, el sistema genera uno automáticamente
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>

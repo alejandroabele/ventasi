@@ -31,4 +31,8 @@ const remove = async (articuloId: number, varianteId: number): Promise<void> => 
     return fetchClient<void>(`${basePath}/${articuloId}/variantes/${varianteId}`, 'DELETE');
 };
 
-export { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove };
+const actualizarCodigoBarras = async (articuloId: number, varianteId: number, codigoBarras: string | null): Promise<void> => {
+    return fetchClient<void>(`${basePath}/${articuloId}/variantes/${varianteId}/codigo-barras`, 'PATCH', { codigoBarras });
+};
+
+export { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove, actualizarCodigoBarras };

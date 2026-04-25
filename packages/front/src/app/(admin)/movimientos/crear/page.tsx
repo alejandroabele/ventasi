@@ -17,7 +17,7 @@ import { useCreateMovimientoInventarioMutation } from '@/hooks/movimiento-invent
 import { ArticuloMovimientoDialog } from '@/components/inventario/articulo-movimiento-dialog'
 import { ArticuloMovimientoRow } from '@/components/inventario/articulo-movimiento-row'
 import { DetalleMovimiento, Articulo, TipoMovimiento } from '@/types'
-import { Plus } from 'lucide-react'
+import { Plus, Printer } from 'lucide-react'
 
 const PAGINACION_BASE = { pagination: { pageIndex: 0, pageSize: 500 } }
 
@@ -103,27 +103,30 @@ export default function NuevoMovimientoPage() {
     }
   }
 
-  const handleSubmit = async () => {
+  const validar = () => {
     if (modoArreglo && !procedenciaId) {
       toast({ title: 'Debe seleccionar la ubicación a ajustar', variant: 'destructive' })
-      return
+      return null
     }
     if (!modoArreglo && (!procedenciaId || !destinoId)) {
       toast({ title: 'Debe seleccionar procedencia y destino', variant: 'destructive' })
-      return
+      return null
     }
-
     const todosDetalles = Object.values(detallesPorArticulo)
       .flat()
       .filter((d) => parseInt(d.cantidad) > 0)
-
     if (todosDetalles.length === 0) {
       toast({ title: 'Debe ingresar al menos una cantidad', variant: 'destructive' })
-      return
+      return null
     }
+    return todosDetalles
+  }
 
+  const handleSubmit = async () => {
+    const todosDetalles = validar()
+    if (!todosDetalles) return
     try {
-      await crearMovimiento({
+      const movimiento = await crearMovimiento({
         tipo,
         fecha: new Date().toISOString(),
         descripcion: descripcion || undefined,
@@ -131,7 +134,25 @@ export default function NuevoMovimientoPage() {
         detalles: todosDetalles,
       } as any)
       toast({ title: 'Movimiento registrado correctamente' })
-      router.push('/movimientos')
+      router.push(`/movimientos/${movimiento.id}`)
+    } catch (e: any) {
+      toast({ title: e?.message || 'Error al registrar movimiento', variant: 'destructive' })
+    }
+  }
+
+  const handleSubmitEImprimir = async () => {
+    const todosDetalles = validar()
+    if (!todosDetalles) return
+    try {
+      const movimiento = await crearMovimiento({
+        tipo,
+        fecha: new Date().toISOString(),
+        descripcion: descripcion || undefined,
+        ...buildPayload(),
+        detalles: todosDetalles,
+      } as any)
+      toast({ title: 'Movimiento registrado correctamente' })
+      router.push(`/etiquetas/preparar?movimientoId=${movimiento.id}`)
     } catch (e: any) {
       toast({ title: e?.message || 'Error al registrar movimiento', variant: 'destructive' })
     }
@@ -297,13 +318,25 @@ export default function NuevoMovimientoPage() {
         </section>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 pt-2 border-t">
+        <div className="flex justify-between items-center pt-2 border-t">
           <Button variant="outline" onClick={() => router.push('/movimientos')}>
             Cancelar
           </Button>
-          <LoadingButton loading={isPending} onClick={handleSubmit}>
-            Registrar movimiento
-          </LoadingButton>
+          <div className="flex gap-2">
+            {cantidadTotal > 0 && (
+              <LoadingButton
+                loading={isPending}
+                variant="outline"
+                onClick={handleSubmitEImprimir}
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Registrar e imprimir etiquetas
+              </LoadingButton>
+            )}
+            <LoadingButton loading={isPending} onClick={handleSubmit}>
+              Registrar movimiento
+            </LoadingButton>
+          </div>
         </div>
 
       </div>
