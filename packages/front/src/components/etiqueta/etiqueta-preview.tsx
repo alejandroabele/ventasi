@@ -26,13 +26,15 @@ export function EtiquetaPreview({ variante, config, escala = 3 }: Props) {
         JsBarcode(barcodeRef.current, codigo, {
           format: 'CODE128',
           displayValue: true,
-          fontSize: 10 * escala,
-          height: 30 * escala,
+          fontSize: Math.round(9 * escala),
+          height: Math.round(28 * escala),
           margin: 0,
           background: 'transparent',
+          lineColor: '#1a1a1a',
+          textMargin: 2,
         });
       } catch {
-        // código inválido, no renderizar
+        // código inválido
       }
     }
   }, [codigo, config.campos, escala]);
@@ -42,16 +44,18 @@ export function EtiquetaPreview({ variante, config, escala = 3 }: Props) {
       style={{
         width: `${ancho}px`,
         height: `${alto}px`,
-        border: '1px solid #d1d5db',
-        borderRadius: 4,
         backgroundColor: '#ffffff',
-        padding: `${4 * escala}px`,
+        border: '1px solid #e2e8f0',
+        borderRadius: `${3 * escala}px`,
+        boxShadow: `0 ${1 * escala}px ${3 * escala}px rgba(0,0,0,0.08), 0 ${1 * escala}px ${2 * escala}px rgba(0,0,0,0.06)`,
+        padding: `${5 * escala}px ${5 * escala}px ${4 * escala}px`,
         display: 'flex',
         flexDirection: 'column',
         gap: `${2 * escala}px`,
         overflow: 'hidden',
         boxSizing: 'border-box',
-        fontFamily: 'sans-serif',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        flexShrink: 0,
       }}
     >
       {config.campos.includes('titulo') && (
@@ -59,10 +63,12 @@ export function EtiquetaPreview({ variante, config, escala = 3 }: Props) {
           style={{
             fontSize: `${7 * escala}px`,
             fontWeight: 700,
-            lineHeight: 1.1,
+            lineHeight: 1.15,
+            color: '#0f172a',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
+            letterSpacing: '-0.01em',
           }}
         >
           {variante.articuloNombre}
@@ -70,23 +76,42 @@ export function EtiquetaPreview({ variante, config, escala = 3 }: Props) {
       )}
 
       {(config.campos.includes('talle') || config.campos.includes('color')) && (
-        <div style={{ fontSize: `${6 * escala}px`, display: 'flex', gap: `${4 * escala}px` }}>
+        <div
+          style={{
+            fontSize: `${5.5 * escala}px`,
+            display: 'flex',
+            gap: `${5 * escala}px`,
+            color: '#475569',
+          }}
+        >
           {config.campos.includes('talle') && (
             <span>
-              <strong>T:</strong> {variante.talleNombre}
+              <span style={{ fontWeight: 600, color: '#334155' }}>T</span>{' '}
+              {variante.talleNombre}
             </span>
           )}
           {config.campos.includes('color') && (
             <span>
-              <strong>C:</strong> {variante.colorNombre}
+              <span style={{ fontWeight: 600, color: '#334155' }}>C</span>{' '}
+              {variante.colorNombre}
             </span>
           )}
         </div>
       )}
 
       {config.campos.includes('codigoBarras') && (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end' }}>
-          <svg ref={barcodeRef} style={{ maxWidth: '100%', maxHeight: '100%' }} />
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'flex-end',
+            minHeight: 0,
+          }}
+        >
+          <svg
+            ref={barcodeRef}
+            style={{ width: '100%', maxHeight: '100%', display: 'block' }}
+          />
         </div>
       )}
     </div>
