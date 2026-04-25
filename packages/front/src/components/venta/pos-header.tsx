@@ -40,6 +40,7 @@ export function PosHeader({ state, onChange }: PosHeaderProps) {
   const [busquedaCliente, setBusquedaCliente] = React.useState('');
   const [debouncedCliente, setDebouncedCliente] = React.useState('');
   const [clienteDropdownAbierto, setClienteDropdownAbierto] = React.useState(false);
+  const [indiceDestacado, setIndiceDestacado] = React.useState(-1);
   const [comprobanteAbierto, setComprobanteAbierto] = React.useState(false);
   const clienteInputRef = React.useRef<HTMLInputElement>(null);
   const comprobanteRef = React.useRef<HTMLDivElement>(null);
@@ -63,6 +64,10 @@ export function PosHeader({ state, onChange }: PosHeaderProps) {
     globalFilter: debouncedCliente,
     enabled: debouncedCliente.length >= 2,
   });
+
+  React.useEffect(() => {
+    setIndiceDestacado(-1);
+  }, [clientes, busquedaCliente]);
 
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -130,16 +135,39 @@ export function PosHeader({ state, onChange }: PosHeaderProps) {
               if (!e.target.value) onChange({ clienteId: undefined, cliente: undefined });
             }}
             onFocus={() => setClienteDropdownAbierto(true)}
+            onKeyDown={(e) => {
+              if (!clienteDropdownAbierto || clientes.length === 0) return;
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setIndiceDestacado((i) => Math.min(i + 1, clientes.length - 1));
+              } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setIndiceDestacado((i) => Math.max(i - 1, 0));
+              } else if (e.key === 'Enter' || e.key === 'Tab') {
+                const idx = indiceDestacado >= 0 ? indiceDestacado : 0;
+                if (clientes[idx]) {
+                  e.preventDefault();
+                  seleccionarCliente(clientes[idx]);
+                }
+              } else if (e.key === 'Escape') {
+                setClienteDropdownAbierto(false);
+                setIndiceDestacado(-1);
+              }
+            }}
           />
         </div>
 
         {clienteDropdownAbierto && debouncedCliente.length >= 2 && clientes.length > 0 && (
           <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md overflow-hidden">
-            {clientes.map((c) => (
+            {clientes.map((c, i) => (
               <button
                 key={c.id}
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors flex items-center justify-between gap-2"
+                className={cn(
+                  'w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between gap-2 cursor-pointer',
+                  i === indiceDestacado ? 'bg-muted' : 'hover:bg-muted',
+                )}
+                onMouseEnter={() => setIndiceDestacado(i)}
                 onMouseDown={(e) => { e.preventDefault(); seleccionarCliente(c); }}
               >
                 <span className="font-medium truncate">{c.nombre}</span>

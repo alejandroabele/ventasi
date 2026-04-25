@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Venta, Query } from '@/types';
-import { fetch, fetchById, create, guardar, confirmar, emitirManual, emitirFiscal, reintentar, anular } from '@/services/venta';
+import { fetch, fetchById, fetchRaw, create, guardar, confirmar, emitirManual, emitirFiscal, reintentar, anular, VentaRawQuery } from '@/services/venta';
 
 export const useGetVentasQuery = (query: Query) =>
     useQuery({ queryKey: ['ventas', query], queryFn: () => fetch(query) });
+
+export const useGetVentasRawQuery = (query: VentaRawQuery) =>
+    useQuery({ queryKey: ['ventas-raw', query], queryFn: () => fetchRaw(query) });
 
 export const useGetVentaByIdQuery = (id: number) =>
     useQuery({ queryKey: ['venta', id], queryFn: () => fetchById(id), enabled: !!id });

@@ -71,26 +71,6 @@ export const MENU = [
         ]
     },
 
-    // Módulo: Ejemplo
-    {
-        title: 'Ejemplo',
-        icon: 'BookOpen',
-        items: [
-            {
-                id: PERMISOS.RUTA_EJEMPLOS,
-                title: 'Ejemplos',
-                url: '/ejemplos',
-                icon: 'List',
-            },
-            {
-                id: PERMISOS.RUTA_EJEMPLO_CATEGORIAS,
-                title: 'Categorías de Ejemplo',
-                url: '/ejemplo-categorias',
-                icon: 'Tag',
-            },
-        ]
-    },
-
     // Módulo: Administración
     {
         title: 'Administración',
@@ -129,6 +109,26 @@ export const MENU = [
         ]
     },
 
+    // Módulo: Cajas
+    {
+        title: 'Caja',
+        icon: 'Landmark',
+        items: [
+            {
+                id: PERMISOS.RUTA_CAJAS,
+                title: 'Estado de Caja',
+                url: '/cajas',
+                icon: 'Landmark',
+            },
+            {
+                id: PERMISOS.RUTA_CAJAS,
+                title: 'Historial',
+                url: '/cajas/historial',
+                icon: 'History',
+            },
+        ]
+    },
+
     // Módulo: Ventas
     {
         title: 'Ventas',
@@ -139,6 +139,18 @@ export const MENU = [
                 title: 'Ventas',
                 url: '/ventas',
                 icon: 'Receipt',
+            },
+            {
+                id: PERMISOS.RUTA_NOTAS_CREDITO,
+                title: 'Notas de Crédito',
+                url: '/ventas/notas-de-credito',
+                icon: 'FileMinus',
+            },
+            {
+                id: PERMISOS.RUTA_NOTAS_DEBITO,
+                title: 'Notas de Débito',
+                url: '/ventas/notas-de-debito',
+                icon: 'FilePlus',
             },
         ]
     },
@@ -259,10 +271,10 @@ export const MENU = [
                 icon: 'PrinterCheck',
             },
             {
-                id: PERMISOS.RUTA_EJEMPLO_CONFIG,
-                title: 'Configuración de Ejemplo',
-                url: '/config/ejemplo',
-                icon: 'Settings2',
+                id: PERMISOS.RUTA_CONFIG_CONCEPTOS,
+                title: 'Conceptos de Movimiento',
+                url: '/config/cajas/conceptos',
+                icon: 'ListOrdered',
             },
         ]
     },

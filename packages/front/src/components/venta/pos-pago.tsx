@@ -4,6 +4,7 @@ import React from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
 import { VentaFormaPago, CuotaMetodoPago } from '@/types';
 import { useGetMetodosPagoQuery } from '@/hooks/metodo-pago';
+import { InputMoney } from '@/components/input-money';
 import { cn } from '@/lib/utils';
 
 function fmt(v: number) {
@@ -200,17 +201,13 @@ export function PosPago({ formasPago, totalVenta, onAdd, onRemove }: PosPagoProp
             {metodoPagoId && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">$</span>
-                    <input
+                  <div className="flex-1">
+                    <InputMoney
                       ref={montoInputRef}
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                      className="w-full h-10 pl-7 pr-3 rounded-md border border-input bg-background text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 font-semibold tabular-nums"
                       value={monto}
-                      onChange={(e) => setMonto(e.target.value)}
+                      placeholder="0,00"
+                      className="h-10 font-semibold tabular-nums"
+                      onChange={(v) => setMonto(v)}
                       onKeyDown={(e) => e.key === 'Enter' && confirmarPago()}
                     />
                   </div>

@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Printer, Receipt, Zap, CheckCircle2, Settings2 } from 'lucide-react';
+import Link from 'next/link';
+import { Printer, Receipt, Zap, CheckCircle2, Settings2, Lock } from 'lucide-react';
+import { useGetSesionCajaActivaQuery } from '@/hooks/sesion-caja';
+import { TipoOperacionVenta, Cobro, MedioPago, CreateCobroPayload } from '@/types';
 import { PosHeader, PosHeaderState } from '@/components/venta/pos-header';
 import { PosArticuloBusqueda } from '@/components/venta/pos-articulo-busqueda';
 import { PosCarrito } from '@/components/venta/pos-carrito';
-import { PosPago } from '@/components/venta/pos-pago';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -17,8 +19,14 @@ import {
   useEmitirFiscalMutation,
 } from '@/hooks/venta';
 import { useToast } from '@/hooks/use-toast';
-import { Comprobante, Venta, VentaDetalle, VentaFormaPago } from '@/types';
+import { Comprobante, Venta, VentaDetalle } from '@/types';
 import { cn } from '@/lib/utils';
+import { GrillaMediosPago } from '@/components/venta/grilla-medios-pago';
+import { SelectorMedioCodigo } from '@/components/venta/selector-medio-codigo';
+import { FormCobro } from '@/components/venta/form-cobro';
+import { ListaCobros } from '@/components/venta/lista-cobros';
+import { useGetMediosPagoActivosQuery } from '@/hooks/medio-pago';
+import { create as apiCrearCobro } from '@/services/cobro';
 
 const LS_FORMATO = 'pos_formato_impresion';
 const getFormato = (): 'a4' | 'termica' =>
@@ -35,13 +43,13 @@ function motivoPendiente(estado: {
   vendedorId?: number;
   clienteId?: number;
   detalles: VentaDetalle[];
-  totalPagado: number;
+  sumaCobros: number;
   total: number;
 }): string | null {
   if (!estado.vendedorId) return 'Seleccioná un vendedor';
   if (!estado.clienteId) return 'Seleccioná un cliente';
   if (estado.detalles.length === 0) return 'Agregá al menos un artículo';
-  if (estado.total > 0 && estado.totalPagado < estado.total - 0.005) return 'Cubrí el saldo restante';
+  if (estado.total > 0 && estado.sumaCobros < estado.total - 0.01) return 'Cubrí el saldo restante';
   return null;
 }
 
@@ -49,7 +57,7 @@ function estadoInicial() {
   return {
     header: {} as PosHeaderState,
     detalles: [] as VentaDetalle[],
-    formasPago: [] as VentaFormaPago[],
+    cobros: [] as (Omit<CreateCobroPayload, 'ventaId'> & { medio: MedioPago })[],
   };
 }
 
@@ -61,14 +69,111 @@ const TIPO_LABEL: Record<string, string> = {
   A: 'Factura A', B: 'Factura B', C: 'Factura C', X: 'Comp. X',
 };
 
+// ── Panel de cobros local (sin ventaId hasta confirmar) ──────────
+interface PanelCobrosLocalProps {
+  cobros: (Omit<CreateCobroPayload, 'ventaId'> & { medio: MedioPago })[];
+  totalVenta: number;
+  onAgregar: (cobro: Omit<CreateCobroPayload, 'ventaId'> & { medio: MedioPago }) => void;
+  onEliminar: (idx: number) => void;
+}
+
+function PanelCobrosLocal({ cobros, totalVenta, onAgregar, onEliminar }: PanelCobrosLocalProps) {
+  const { data: mediosActivos = [] } = useGetMediosPagoActivosQuery();
+  const [medioSeleccionado, setMedioSeleccionado] = React.useState<MedioPago | undefined>();
+  const montoInputRef = React.useRef<HTMLInputElement>(null);
+
+  const sumaCobros = cobros.reduce((acc, c) => acc + parseFloat(c.monto || '0'), 0);
+  const saldoRestante = totalVenta - sumaCobros;
+
+  const seleccionarMedio = (medio: MedioPago) => {
+    setMedioSeleccionado(medio);
+    setTimeout(() => montoInputRef.current?.focus(), 50);
+  };
+
+  const agregarCobro = (datos: { monto: string; codigoAutorizacion?: string; ultimos4?: string; vuelto?: string }) => {
+    if (!medioSeleccionado) return;
+    onAgregar({ ...datos, medioPagoId: medioSeleccionado.id!, medio: medioSeleccionado });
+    setMedioSeleccionado(undefined);
+  };
+
+  const cobrosParaLista: Cobro[] = cobros.map((c, i) => ({
+    id: -(i + 1),
+    ventaId: 0,
+    medioPagoId: c.medioPagoId,
+    tipo: c.medio.tipo,
+    cuotas: c.medio.cuotas,
+    marcaTarjeta: c.medio.marcaTarjeta,
+    procesador: c.medio.procesador,
+    monto: c.monto,
+    codigoAutorizacion: c.codigoAutorizacion,
+    ultimos4: c.ultimos4,
+    timestamp: '',
+    estado: 'PENDIENTE',
+    medioPago: c.medio,
+  }));
+
+  return (
+    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+      <div className="px-4 py-2.5 border-b bg-muted/10">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cobros</p>
+      </div>
+      <div className="p-4 space-y-4">
+        {cobros.length > 0 && (
+          <ListaCobros
+            cobros={cobrosParaLista}
+            sumaMontos={sumaCobros}
+            totalVenta={totalVenta}
+            onEliminar={(c) => {
+              const idx = cobrosParaLista.indexOf(c);
+              if (idx >= 0) onEliminar(idx);
+            }}
+          />
+        )}
+
+        {saldoRestante > 0.01 && (
+          <>
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Código rápido</p>
+              <SelectorMedioCodigo
+                onSeleccionar={seleccionarMedio}
+                medioCargado={medioSeleccionado}
+              />
+            </div>
+
+            {mediosActivos.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">O seleccioná</p>
+                <GrillaMediosPago
+                  medios={mediosActivos}
+                  onSeleccionar={seleccionarMedio}
+                  medioCodigo={medioSeleccionado?.codigo}
+                />
+              </div>
+            )}
+
+            <FormCobro
+              medio={medioSeleccionado}
+              saldoRestante={saldoRestante}
+              onAgregar={agregarCobro}
+              onCancelar={() => setMedioSeleccionado(undefined)}
+              montoInputRef={montoInputRef}
+            />
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Dialog de impresión ──────────────────────────────────────────
 interface PrintDialogProps {
   payload: Venta | null;
+  cobrosLocales: (Omit<CreateCobroPayload, 'ventaId'> & { medio: MedioPago })[];
   onClose: () => void;
   onVentaCreada: () => void;
 }
 
-function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
+function PrintDialog({ payload, cobrosLocales, onClose, onVentaCreada }: PrintDialogProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { mutateAsync: crear, isPending: isCreando } = useCreateVentaMutation();
@@ -102,6 +207,11 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
     if (!payload) return null;
     const nueva = await crear(payload);
     if (!nueva.id) return null;
+
+    for (const cobro of cobrosLocales) {
+      await apiCrearCobro({ ventaId: nueva.id, medioPagoId: cobro.medioPagoId, monto: cobro.monto, codigoAutorizacion: cobro.codigoAutorizacion, ultimos4: cobro.ultimos4, vuelto: cobro.vuelto });
+    }
+
     await confirmar(nueva.id);
     setVentaId(nueva.id);
     onVentaCreada();
@@ -150,7 +260,6 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
         <VisuallyHidden><DialogTitle>Confirmar venta</DialogTitle></VisuallyHidden>
         {!comprobante ? (
           <>
-            {/* Header */}
             <div className="px-6 pt-6 pb-3 text-center">
               <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-2">
                 <CheckCircle2 className="h-5 w-5 text-emerald-600" />
@@ -163,7 +272,6 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
               )}
             </div>
 
-            {/* Selector de formato (colapsado) */}
             <div className="px-6 pb-3">
               <button
                 type="button"
@@ -172,7 +280,7 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
               >
                 <span className="flex items-center gap-1.5">
                   <Settings2 className="h-3 w-3" />
-                  Formato de impresión:
+                  Formato:
                   <span className="font-semibold text-foreground">
                     {formatoActual === 'termica' ? 'Térmica (arco)' : 'Normal (A4)'}
                   </span>
@@ -202,7 +310,6 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
               )}
             </div>
 
-            {/* Botones de emisión */}
             <div className="px-6 pb-6 space-y-2">
               <LoadingButton
                 className="w-full h-11 gap-2 font-semibold"
@@ -235,7 +342,6 @@ function PrintDialog({ payload, onClose, onVentaCreada }: PrintDialogProps) {
           </>
         ) : (
           <>
-            {/* Comprobante emitido — muestra número */}
             <div className="px-6 pt-6 pb-3 text-center">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-2">
                 {formatoActual === 'termica' ? (
@@ -286,17 +392,20 @@ export default function NuevaVentaClient() {
   const params = useSearchParams();
   const visitaId = params.get('visitaId') ? parseInt(params.get('visitaId')!) : undefined;
 
+  const { data: sesionActiva, isLoading: loadingSesion } = useGetSesionCajaActivaQuery();
+  const [tipoOperacion, setTipoOperacion] = React.useState<TipoOperacionVenta>('venta');
+  const [ventaOrigenId, setVentaOrigenId] = React.useState<number | undefined>();
   const [estado, setEstado] = React.useState(estadoInicial);
   const [payloadPendiente, setPayloadPendiente] = React.useState<Venta | null>(null);
 
   const total = calcularTotal(estado.detalles);
-  const totalPagado = estado.formasPago.reduce((acc, fp) => acc + parseFloat(fp.montoConInteres || '0'), 0);
+  const sumaCobros = estado.cobros.reduce((acc, c) => acc + parseFloat(c.monto || '0'), 0);
 
   const motivo = motivoPendiente({
     vendedorId: estado.header.vendedorId,
     clienteId: estado.header.clienteId,
     detalles: estado.detalles,
-    totalPagado,
+    sumaCobros,
     total,
   });
 
@@ -304,7 +413,21 @@ export default function NuevaVentaClient() {
     setEstado((p) => ({ ...p, header: { ...p.header, ...patch } }));
 
   const agregarDetalle = (d: Omit<VentaDetalle, 'id' | 'ventaId'>) =>
-    setEstado((p) => ({ ...p, detalles: [...p.detalles, d as VentaDetalle] }));
+    setEstado((p) => {
+      const idx = p.detalles.findIndex((x) => x.articuloVarianteId === d.articuloVarianteId);
+      if (idx !== -1) {
+        const existente = p.detalles[idx];
+        const nuevaCantidad = parseFloat(existente.cantidad || '1') + 1;
+        const precio = parseFloat(existente.precioUnitario || '0');
+        const detalles = p.detalles.map((x, i) =>
+          i === idx
+            ? { ...x, cantidad: String(nuevaCantidad), subtotalLinea: (nuevaCantidad * precio).toFixed(2) }
+            : x,
+        );
+        return { ...p, detalles };
+      }
+      return { ...p, detalles: [...p.detalles, d as VentaDetalle] };
+    });
 
   const actualizarDetalle = (i: number, patch: Partial<VentaDetalle>) =>
     setEstado((p) => ({
@@ -315,14 +438,14 @@ export default function NuevaVentaClient() {
   const eliminarDetalle = (i: number) =>
     setEstado((p) => ({ ...p, detalles: p.detalles.filter((_, idx) => idx !== i) }));
 
-  const agregarPago = (fp: Omit<VentaFormaPago, 'id' | 'ventaId'>) =>
-    setEstado((p) => ({ ...p, formasPago: [...p.formasPago, fp as VentaFormaPago] }));
+  const agregarCobro = (cobro: Omit<CreateCobroPayload, 'ventaId'> & { medio: MedioPago }) =>
+    setEstado((p) => ({ ...p, cobros: [...p.cobros, cobro] }));
 
-  const eliminarPago = (i: number) =>
-    setEstado((p) => ({ ...p, formasPago: p.formasPago.filter((_, idx) => idx !== i) }));
+  const eliminarCobro = (i: number) =>
+    setEstado((p) => ({ ...p, cobros: p.cobros.filter((_, idx) => idx !== i) }));
 
   const handleCobrar = () => {
-    const { header, detalles, formasPago } = estado;
+    const { header, detalles } = estado;
     if (!header.clienteId || !header.vendedorId || !header.listaPrecioId) return;
 
     const subtotal = detalles.reduce((acc, d) => acc + parseFloat(d.subtotalLinea || '0'), 0);
@@ -331,6 +454,8 @@ export default function NuevaVentaClient() {
 
     setPayloadPendiente({
       visitaId: visitaId,
+      tipoOperacion,
+      ventaOrigenId,
       clienteId: header.clienteId,
       vendedorId: header.vendedorId,
       listaPrecioId: header.listaPrecioId,
@@ -341,7 +466,6 @@ export default function NuevaVentaClient() {
       iva: iva.toFixed(2),
       total: totalFinal.toFixed(2),
       detalles,
-      formasPago,
     });
   };
 
@@ -352,25 +476,82 @@ export default function NuevaVentaClient() {
     }));
   };
 
+  if (!loadingSesion && !sesionActiva) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="rounded-full bg-muted p-6">
+          <Lock className="h-12 w-12 text-muted-foreground" />
+        </div>
+        <h3 className="text-xl font-semibold">Caja cerrada</h3>
+        <p className="text-muted-foreground text-center max-w-sm">
+          Para crear una venta, primero debés abrir la caja del día.
+        </p>
+        <Link
+          href="/cajas/apertura"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Abrir Caja
+        </Link>
+      </div>
+    );
+  }
+
+  const TIPO_LABELS: Record<TipoOperacionVenta, string> = {
+    venta: 'Venta',
+    nota_credito: 'Nota de Crédito',
+    nota_debito: 'Nota de Débito',
+  };
+
+  const botonLabel = tipoOperacion === 'nota_credito'
+    ? `EMITIR NC $${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : tipoOperacion === 'nota_debito'
+      ? `EMITIR ND $${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      : `COBRAR $${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   return (
     <>
       <PrintDialog
         payload={payloadPendiente}
+        cobrosLocales={estado.cobros}
         onClose={() => setPayloadPendiente(null)}
         onVentaCreada={handleVentaCreada}
       />
 
       <div className="space-y-4 pb-8">
+        <div className="flex items-center gap-2 flex-wrap">
+          {(['venta', 'nota_credito', 'nota_debito'] as TipoOperacionVenta[]).map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => setTipoOperacion(tipo)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                tipoOperacion === tipo
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background border-input hover:bg-muted'
+              }`}
+            >
+              {TIPO_LABELS[tipo]}
+            </button>
+          ))}
+          {tipoOperacion !== 'venta' && (
+            <input
+              type="number"
+              placeholder="Venta origen (opcional)"
+              className="h-8 px-3 text-sm border rounded-md max-w-[180px]"
+              value={ventaOrigenId ?? ''}
+              onChange={(e) => setVentaOrigenId(e.target.value ? parseInt(e.target.value) : undefined)}
+            />
+          )}
+        </div>
+
         <PosHeader state={estado.header} onChange={patchHeader} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
-          {/* Columna izquierda: búsqueda + grilla */}
           <PosArticuloBusqueda
             listaPrecioId={estado.header.listaPrecioId}
             onAgregar={agregarDetalle}
           />
 
-          {/* Columna derecha: carrito + pago + cobrar */}
           <div className="space-y-4 lg:sticky lg:top-4">
             <PosCarrito
               detalles={estado.detalles}
@@ -379,11 +560,11 @@ export default function NuevaVentaClient() {
               onRemove={eliminarDetalle}
             />
 
-            <PosPago
-              formasPago={estado.formasPago}
+            <PanelCobrosLocal
+              cobros={estado.cobros}
               totalVenta={total}
-              onAdd={agregarPago}
-              onRemove={eliminarPago}
+              onAgregar={agregarCobro}
+              onEliminar={eliminarCobro}
             />
 
             <div className="rounded-xl border bg-card shadow-sm p-4 space-y-2">
@@ -393,7 +574,7 @@ export default function NuevaVentaClient() {
                 disabled={!!motivo}
                 onClick={handleCobrar}
               >
-                COBRAR ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {botonLabel}
               </LoadingButton>
               {motivo && (
                 <p className="text-xs text-muted-foreground text-center">{motivo}</p>
