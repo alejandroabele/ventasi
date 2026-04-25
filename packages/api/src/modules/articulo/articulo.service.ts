@@ -164,6 +164,35 @@ export class ArticuloService {
     });
   }
 
+  async getVariantesParaEtiquetas(articuloIds: number[]) {
+    if (!articuloIds.length) return [];
+    const placeholders = articuloIds.map(() => '?').join(',');
+    const filas: any[] = await this.dataSource.query(
+      `SELECT
+        a.id     AS articuloId,
+        a.nombre AS articuloNombre,
+        v.id     AS varianteId,
+        t.nombre AS talleNombre,
+        c.nombre AS colorNombre,
+        v.codigo_barras AS codigoBarras
+       FROM articulo a
+       JOIN articulo_variante v ON v.articulo_id = a.id AND v.deleted_at IS NULL
+       JOIN talle t ON t.id = v.talle_id AND t.deleted_at IS NULL
+       JOIN color c ON c.id = v.color_id AND c.deleted_at IS NULL
+       WHERE a.id IN (${placeholders}) AND a.deleted_at IS NULL
+       ORDER BY a.nombre, t.nombre, c.nombre`,
+      articuloIds,
+    );
+    return filas.map((f) => ({
+      articuloId: f.articuloId,
+      articuloNombre: f.articuloNombre,
+      varianteId: f.varianteId,
+      talleNombre: f.talleNombre,
+      colorNombre: f.colorNombre,
+      codigoBarras: f.codigoBarras ?? null,
+    }));
+  }
+
   async getDashboardAnclas() {
     const filas: any[] = await this.dataSource.query(
       `SELECT

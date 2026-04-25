@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove } from '@/services/articulo-variantes';
+import { fetchGrilla, registrarIngreso, ajustarCantidad, actualizarUmbrales, bulkUmbrales, copiarUmbrales, remove, actualizarCodigoBarras } from '@/services/articulo-variantes';
 import { BulkUmbralPayload, IngresoItem, UmbralVariante } from '@/types';
 
 export const useGetGrillaQuery = (articuloId: number) => {
@@ -82,6 +82,18 @@ export const useCopiarUmbralesMutation = () => {
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-anclas'] });
+        },
+    });
+};
+
+export const useActualizarCodigoBarrasMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationKey: ['actualizar-codigo-barras'],
+        mutationFn: ({ articuloId, varianteId, codigoBarras }: { articuloId: number; varianteId: number; codigoBarras: string | null }) =>
+            actualizarCodigoBarras(articuloId, varianteId, codigoBarras),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['grilla-articulo', variables.articuloId] });
         },
     });
 };

@@ -325,7 +325,16 @@ export type ArticuloColor = { id?: number; articuloId: number; colorId: number; 
 export type EstadoSemaforo = 'ROJO' | 'AMARILLO' | 'VERDE' | 'SIN_ESTADO';
 export type UmbralVariante = { stockMinimo?: number | null; stockSeguridad?: number | null; stockMaximo?: number | null; }
 export type BulkUmbralPayload = UmbralVariante & { articuloId: number; }
-export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; articulo?: { id?: number; nombre: string; sku?: string; }; }
+export type ArticuloVariante = { id?: number; articuloId: number; talleId: number; colorId: number; cantidad: string; talle?: Talle; color?: Color; articulo?: { id?: number; nombre: string; sku?: string; }; codigoBarras?: string; }
+
+export type VarianteEtiqueta = {
+  articuloId: number;
+  articuloNombre: string;
+  varianteId: number;
+  talleNombre: string;
+  colorNombre: string;
+  codigoBarras: string | null;
+}
 export type CeldaGrilla = {
     talleId: number; talleCodigo: string; talleNombre: string; talleOrden: number;
     colorId: number; colorCodigo: string; colorNombre: string; colorOrden: number; colorCodigos: string[];
@@ -333,6 +342,7 @@ export type CeldaGrilla = {
     estado: 'potencial' | 'real';
     stockMinimo?: number | null; stockSeguridad?: number | null; stockMaximo?: number | null;
     estadoSemaforo?: EstadoSemaforo;
+    codigoBarras?: string | null;
 }
 export type GrillaColor = { id: number; codigo: string; nombre: string; orden: number; codigos: string[]; }
 export type GrillaArticulo = { celdas: CeldaGrilla[]; talles: Talle[]; colores: GrillaColor[]; stockTotal: number; }

@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { IsOptional } from 'class-validator';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiKeyGuard } from '@/modules/auth/guards/api-key/api-key.guard';
 import { AuthorizationGuard } from '@/modules/auth/guards/authorization/authorization.guard';
@@ -66,6 +67,15 @@ export class ArticuloVarianteController {
   @RequirePermissions(PERMISOS.ARTICULO_ELIMINAR)
   eliminarVariante(@Param('varianteId', ParseIntPipe) varianteId: number) {
     return this.service.eliminarVariante(varianteId);
+  }
+
+  @Patch(':articuloId/variantes/:varianteId/codigo-barras')
+  @RequirePermissions(PERMISOS.ARTICULO_EDITAR)
+  actualizarCodigoBarras(
+    @Param('varianteId', ParseIntPipe) varianteId: number,
+    @Body() dto: { codigoBarras: string | null },
+  ) {
+    return this.service.actualizarCodigoBarras(varianteId, dto.codigoBarras);
   }
 
   @Patch(':articuloId/variantes/:varianteId/umbrales')

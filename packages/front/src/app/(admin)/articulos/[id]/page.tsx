@@ -3,17 +3,18 @@
 import ArticuloForm from '@/components/forms/articulo-form';
 import { CombinacionesArticulo } from '@/components/stock/combinaciones-articulo';
 import { GrillaUmbrales } from '@/components/stock/grilla-umbrales';
+import { GrillaCodigosBarras } from '@/components/stock/grilla-codigos-barras';
 import { PreciosArticulo } from '@/components/articulo/precios-articulo';
 import { PageTitle } from '@/components/ui/page-title';
 import { useGetArticuloByIdQuery } from '@/hooks/articulos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Warehouse, PencilLine, BadgeDollarSign, TrendingUp } from 'lucide-react';
+import { Warehouse, PencilLine, BadgeDollarSign, TrendingUp, Barcode } from 'lucide-react';
 import React from 'react';
 import { SkeletonTable } from '@/components/skeletons/skeleton-table';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const TABS = ['info', 'inventario', 'umbrales', 'precios'] as const;
+const TABS = ['info', 'inventario', 'umbrales', 'precios', 'etiquetas'] as const;
 type Tab = typeof TABS[number];
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
@@ -54,6 +55,10 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           <TabsTrigger value="precios" className="flex-1 flex items-center gap-1.5">
             <BadgeDollarSign className="h-3.5 w-3.5" />
             Precios
+          </TabsTrigger>
+          <TabsTrigger value="etiquetas" className="flex-1 flex items-center gap-1.5">
+            <Barcode className="h-3.5 w-3.5" />
+            Etiquetas
           </TabsTrigger>
         </TabsList>
 
@@ -105,6 +110,21 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
             </CardHeader>
             <CardContent>
               {data && <PreciosArticulo articulo={data} />}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="etiquetas">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Códigos de barras por variante</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {data ? (
+                <GrillaCodigosBarras articulo={data} />
+              ) : (
+                <p className="text-muted-foreground">No se encontró el artículo.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

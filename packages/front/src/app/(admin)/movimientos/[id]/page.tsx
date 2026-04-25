@@ -4,6 +4,9 @@ import { PageTitle } from "@/components/ui/page-title"
 import { useGetMovimientoInventarioByIdQuery } from '@/hooks/movimiento-inventario'
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Printer } from 'lucide-react'
+import Link from 'next/link'
 import { MovimientoInventario, DetalleMovimiento } from '@/types'
 
 const TIPO_LABELS: Record<string, string> = {
@@ -32,11 +35,23 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
     if (isLoading || isFetching) return <>Cargando...</>
     if (!movimiento) return <>Movimiento no encontrado</>
 
+    const tieneDetalles = (movimiento.detalles?.length ?? 0) > 0;
+
     return (
         <>
-            <PageTitle title={`Movimiento #${movimiento.id}`} />
+            <div className="flex items-center justify-between mb-4">
+                <PageTitle title={`Movimiento #${movimiento.id}`} />
+                {tieneDetalles && (
+                    <Button asChild size="sm" variant="outline">
+                        <Link href={`/etiquetas/preparar?movimientoId=${movimiento.id}`}>
+                            <Printer className="h-4 w-4 mr-2" />
+                            Imprimir etiquetas
+                        </Link>
+                    </Button>
+                )}
+            </div>
 
-            <div className="space-y-6 max-w-3xl">
+            <div className="space-y-6 max-w-3xl mt-0">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <span className="text-muted-foreground">Tipo:</span>{' '}

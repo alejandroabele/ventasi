@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req, ParseArrayPipe } from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiKeyGuard } from '@/modules/auth/guards/api-key/api-key.guard';
 import { AuthorizationGuard } from '@/modules/auth/guards/authorization/authorization.guard';
@@ -73,6 +73,14 @@ export class ArticuloController {
   @RequirePermissions(PERMISOS.DASHBOARD_ANCLAS_VER)
   getDashboardAnclas() {
     return this.service.getDashboardAnclas();
+  }
+
+  @Get('variantes-para-etiquetas')
+  @RequirePermissions(PERMISOS.ETIQUETAS_IMPRIMIR)
+  getVariantesParaEtiquetas(
+    @Query('articuloIds', new ParseArrayPipe({ items: Number, separator: ',' })) articuloIds: number[],
+  ) {
+    return this.service.getVariantesParaEtiquetas(articuloIds);
   }
 
   @Get(':id')

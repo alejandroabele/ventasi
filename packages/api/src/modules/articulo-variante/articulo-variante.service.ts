@@ -35,7 +35,8 @@ export class ArticuloVarianteService {
         CASE WHEN v.id IS NULL THEN 'potencial' ELSE 'real' END AS estado,
         v.stock_minimo    AS stock_minimo,
         v.stock_seguridad AS stock_seguridad,
-        v.stock_maximo    AS stock_maximo
+        v.stock_maximo    AS stock_maximo,
+        v.codigo_barras   AS codigo_barras
       FROM articulo_talle at2
       JOIN talle t ON t.id = at2.talle_id AND t.deleted_at IS NULL
       JOIN articulo_color ac ON ac.articulo_id = at2.articulo_id AND ac.deleted_at IS NULL
@@ -119,6 +120,7 @@ export class ArticuloVarianteService {
         stockSeguridad: seguridad,
         stockMaximo: fila.stock_maximo != null ? Number(fila.stock_maximo) : null,
         estadoSemaforo: calcularEstadoSemaforo(stockActual, minimo, seguridad),
+        codigoBarras: fila.codigo_barras ?? null,
       };
     });
 
@@ -163,6 +165,11 @@ export class ArticuloVarianteService {
     const variante = await this.repo.findOne({ where: { id: varianteId } });
     await this.repo.delete({ id: varianteId });
     return variante;
+  }
+
+  async actualizarCodigoBarras(varianteId: number, codigoBarras: string | null) {
+    await this.repo.update({ id: varianteId }, { codigoBarras: codigoBarras ?? null });
+    return this.repo.findOne({ where: { id: varianteId } });
   }
 
   async actualizarUmbrales(varianteId: number, dto: UpdateUmbralVarianteDto) {
