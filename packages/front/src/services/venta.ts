@@ -31,4 +31,20 @@ const reintentar = async (id: number): Promise<Comprobante> =>
 const anular = async (id: number): Promise<Venta> =>
     fetchClient<Venta>(`${basePath}/${id}/anular`, 'DELETE');
 
-export { fetch, fetchById, create, guardar, confirmar, emitirManual, emitirFiscal, reintentar, anular };
+export type VentaRawQuery = {
+    limit?: number;
+    skip?: number;
+    filter?: string;
+    order?: string;
+};
+
+const fetchRaw = async (query: VentaRawQuery): Promise<Venta[]> => {
+    const params = new URLSearchParams();
+    if (query.limit !== undefined) params.set('limit', String(query.limit));
+    if (query.skip !== undefined) params.set('skip', String(query.skip));
+    if (query.filter) params.set('filter', query.filter);
+    if (query.order) params.set('order', query.order);
+    return fetchClient<Venta[]>(`${basePath}?${params.toString()}`, 'GET');
+};
+
+export { fetch, fetchById, fetchRaw, create, guardar, confirmar, emitirManual, emitirFiscal, reintentar, anular };

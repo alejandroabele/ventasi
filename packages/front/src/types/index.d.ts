@@ -480,6 +480,50 @@ export type CuotaMetodoPago = {
     activo?: number;
 }
 
+export type TipoCobro = 'EFECTIVO' | 'DEBITO' | 'CREDITO' | 'QR' | 'TRANSFERENCIA' | 'APP_DELIVERY';
+export type MarcaTarjeta = 'VISA' | 'MASTERCARD' | 'AMEX' | 'CABAL' | 'NARANJA' | 'OTRA';
+export type ProcesadorPago = 'MP' | 'CLOVER' | 'OTRO';
+export type EstadoCobro = 'PENDIENTE' | 'ACREDITADO' | 'PARCIAL' | 'CON_DIFERENCIA';
+
+export type MedioPago = {
+    id?: number;
+    codigo: string;
+    nombre: string;
+    tipo: TipoCobro;
+    cuotas: number;
+    marcaTarjeta?: MarcaTarjeta;
+    procesador?: ProcesadorPago;
+    orden: number;
+    activo?: number;
+    arancel?: string;
+    plazoDias?: number;
+}
+
+export type Cobro = {
+    id?: number;
+    ventaId: number;
+    medioPagoId: number;
+    tipo: TipoCobro;
+    cuotas: number;
+    marcaTarjeta?: MarcaTarjeta;
+    procesador?: ProcesadorPago;
+    monto: string;
+    codigoAutorizacion?: string;
+    ultimos4?: string;
+    timestamp: string;
+    estado: EstadoCobro;
+    medioPago?: MedioPago;
+}
+
+export type CreateCobroPayload = {
+    ventaId: number;
+    medioPagoId: number;
+    monto: string;
+    codigoAutorizacion?: string;
+    ultimos4?: string;
+    vuelto?: string;
+}
+
 export type MetodoPago = {
     id?: number;
     nombre: string;
@@ -532,7 +576,7 @@ export type EstadoVenta = 'borrador' | 'confirmada' | 'anulada';
 
 export type Venta = {
     id?: number;
-    visitaId: number;
+    visitaId?: number;
     clienteId: number;
     vendedorId: number;
     listaPrecioId: number;
@@ -550,8 +594,13 @@ export type Venta = {
     cliente?: Cliente;
     vendedor?: Vendedor;
     listaPrecio?: ListaPrecio;
+    usuarioId?: number;
+    tipoOperacion?: TipoOperacionVenta;
+    ventaOrigenId?: number;
+    sesionCajaId?: number;
+    vuelto?: string;
     detalles?: VentaDetalle[];
-    formasPago?: VentaFormaPago[];
+    cobros?: Cobro[];
     comprobante?: Comprobante;
 }
 
@@ -590,4 +639,82 @@ export type DashboardConversion = {
     conversion: number;
     razones: DashboardRazon[];
     tablaTipos: DashboardTipo[];
+}
+
+// --- Cajas ---
+export type TipoOperacionVenta = 'venta' | 'nota_credito' | 'nota_debito';
+
+export type Caja = {
+    id?: number;
+    nombre: string;
+    descripcion?: string;
+    activo?: number;
+}
+
+export type ConceptoMovimiento = {
+    id?: number;
+    nombre: string;
+    tipo: 'ingreso' | 'egreso';
+    esSistema?: number;
+    activo?: number;
+}
+
+export type SesionCaja = {
+    id?: number;
+    cajaId: number;
+    usuarioId?: number;
+    estado?: 'abierta' | 'cerrada';
+    fechaApertura?: string;
+    fechaCierre?: string;
+    saldoInicialSugerido?: string;
+    saldoInicialConfirmado: string;
+    sesionAnteriorId?: number;
+    observaciones?: string;
+    caja?: Caja;
+    totalIngresos?: string;
+    totalEgresos?: string;
+    cantidadMovimientos?: number;
+}
+
+export type MovimientoCaja = {
+    id?: number;
+    sesionCajaId: number;
+    tipo: 'ingreso' | 'egreso';
+    conceptoMovimientoId?: number;
+    medioPagoId?: number;
+    monto: string;
+    descripcion?: string;
+    referenciaTipo?: string;
+    referenciaId?: number;
+    conceptoMovimiento?: ConceptoMovimiento;
+    createdAt?: string;
+}
+
+export type ArqueoCajaDetalle = {
+    id?: number;
+    arqueoCajaId?: number;
+    medioPagoId: number;
+    montoSistema?: string;
+    montoDeclarado: string;
+    diferencia?: string;
+}
+
+export type ArqueoCaja = {
+    id?: number;
+    sesionCajaId: number;
+    tipo: 'parcial' | 'cierre';
+    fecha?: string;
+    diferenciaTotal?: string;
+    observaciones?: string;
+    detalles: ArqueoCajaDetalle[];
+}
+
+export type AbrirCajaDto = {
+    cajaId: number;
+    saldoInicialConfirmado: string;
+    observaciones?: string;
+}
+
+export type CerrarCajaDto = {
+    observaciones?: string;
 }

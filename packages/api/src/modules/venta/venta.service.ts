@@ -1,11 +1,11 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { ClientProxy } from '@nestjs/microservices';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { firstValueFrom } from 'rxjs';
-import { Venta, EstadoVenta } from './entities/venta.entity';
+import { Venta, EstadoVenta, TipoOperacionVenta } from './entities/venta.entity';
 import { VentaDetalle } from './entities/venta-detalle.entity';
-import { VentaFormaPago } from './entities/venta-forma-pago.entity';
 import { Comprobante, EstadoComprobante, TipoComprobante } from './entities/comprobante.entity';
 import { CreateVentaDto } from './dto/create-venta.dto';
 import { MovimientoInventario, TipoMovimiento } from '@/modules/movimiento-inventario/entities/movimiento-inventario.entity';
@@ -16,18 +16,19 @@ import { Config } from '@/modules/config/entities/config.entity';
 
 @Injectable()
 export class VentaService {
+  private readonly logger = new Logger(VentaService.name);
+
   constructor(
     @InjectRepository(Venta)
     private ventaRepo: Repository<Venta>,
     @InjectRepository(VentaDetalle)
     private detalleRepo: Repository<VentaDetalle>,
-    @InjectRepository(VentaFormaPago)
-    private formaPagoRepo: Repository<VentaFormaPago>,
     @InjectRepository(Comprobante)
     private comprobanteRepo: Repository<Comprobante>,
     @Inject('AFIP_SERVICE')
     private afipClient: ClientProxy,
     private dataSource: DataSource,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(take: number, skip: number, filter?: string, order?: string) {
@@ -46,6 +47,7 @@ export class VentaService {
       if (f.clienteId) qb.andWhere('v.clienteId = :clienteId', { clienteId: f.clienteId });
       if (f.fechaDesde) qb.andWhere('v.fecha >= :fechaDesde', { fechaDesde: f.fechaDesde });
       if (f.fechaHasta) qb.andWhere('v.fecha <= :fechaHasta', { fechaHasta: f.fechaHasta });
+      if (f.tipoOperacion) qb.andWhere('v.tipoOperacion = :tipoOperacion', { tipoOperacion: f.tipoOperacion });
     }
 
     if (take) qb.take(take);
@@ -63,8 +65,6 @@ export class VentaService {
         'detalles.articuloVariante.talle',
         'detalles.articuloVariante.color',
         'detalles.articuloVariante.articulo',
-        'formasPago', 'formasPago.metodoPago',
-        'formasPago.cuotaMetodoPago',
         'comprobante',
       ],
     });
@@ -74,12 +74,23 @@ export class VentaService {
 
   async crear(dto: CreateVentaDto) {
     const ventaId = await this.dataSource.transaction(async (manager) => {
+      const sesionActiva = await manager.query(
+        `SELECT id FROM sesion_caja WHERE estado = 'abierta' AND deleted_at IS NULL LIMIT 1`,
+      );
+      if (!sesionActiva.length) {
+        this.logger.warn('crear venta: no hay sesión de caja abierta');
+      }
+
       const venta = manager.create(Venta, {
         visitaId: dto.visitaId ?? null,
         clienteId: dto.clienteId,
         vendedorId: dto.vendedorId,
+        usuarioId: dto.usuarioId ?? 1,
         listaPrecioId: dto.listaPrecioId,
         tipoComprobante: dto.tipoComprobante,
+        tipoOperacion: (dto.tipoOperacion as TipoOperacionVenta) ?? TipoOperacionVenta.VENTA,
+        ventaOrigenId: dto.ventaOrigenId ?? null,
+        sesionCajaId: sesionActiva[0]?.id ?? null,
         estado: EstadoVenta.BORRADOR,
         fecha: dto.fecha,
         subtotal: dto.subtotal,
@@ -95,10 +106,6 @@ export class VentaService {
 
       for (const d of dto.detalles) {
         await manager.save(VentaDetalle, { ...d, ventaId: ventaGuardada.id });
-      }
-
-      for (const fp of dto.formasPago) {
-        await manager.save(VentaFormaPago, { ...fp, ventaId: ventaGuardada.id });
       }
 
       return ventaGuardada.id;
@@ -131,14 +138,9 @@ export class VentaService {
       });
 
       await manager.softDelete(VentaDetalle, { ventaId: id });
-      await manager.softDelete(VentaFormaPago, { ventaId: id });
 
       for (const d of dto.detalles) {
         await manager.save(VentaDetalle, { ...d, ventaId: id });
-      }
-
-      for (const fp of dto.formasPago) {
-        await manager.save(VentaFormaPago, { ...fp, ventaId: id });
       }
     });
     return this.findOne(id);
@@ -152,6 +154,16 @@ export class VentaService {
     if (!venta) throw new NotFoundException('Venta no encontrada');
     if (venta.estado !== EstadoVenta.BORRADOR) {
       throw new BadRequestException('Solo se pueden confirmar ventas en estado borrador');
+    }
+
+    const cobros = await this.dataSource.query(
+      `SELECT SUM(CAST(monto AS DECIMAL(15,4))) AS suma FROM cobro WHERE venta_id = ? AND deleted_at IS NULL`,
+      [id],
+    );
+    const sumaCobros = parseFloat(cobros[0]?.suma ?? '0');
+    const totalVenta = parseFloat(venta.total ?? '0');
+    if (Math.abs(sumaCobros - totalVenta) > 0.01) {
+      throw new BadRequestException('Monto cobrado no coincide con total de la venta');
     }
 
     await this.dataSource.transaction(async (manager) => {
@@ -206,6 +218,20 @@ export class VentaService {
         await manager.update(Visita, { id: venta.visitaId }, { ventaId: id } as any);
       }
     });
+
+    const cobrosConfirmados = await this.dataSource.query(
+      `SELECT medio_pago_id, monto FROM cobro WHERE venta_id = ? AND deleted_at IS NULL`,
+      [id],
+    );
+    this.eventEmitter.emit('venta.confirmada', {
+      ventaId: id,
+      tipoOperacion: venta.tipoOperacion ?? TipoOperacionVenta.VENTA,
+      cobros: cobrosConfirmados.map((c: any) => ({
+        medioPagoId: c.medio_pago_id,
+        monto: c.monto,
+      })),
+    });
+
     return this.findOne(id);
   }
 

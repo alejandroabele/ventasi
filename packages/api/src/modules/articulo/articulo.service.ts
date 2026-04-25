@@ -53,6 +53,48 @@ export class ArticuloService {
     ));
   }
 
+  async buscarPorBarcode(codigoBarras: string, listaPrecioId?: number) {
+    const filas: any[] = await this.dataSource.query(
+      `SELECT
+         v.id          AS varianteId,
+         v.articulo_id AS articuloId,
+         v.talle_id    AS talleId,
+         v.color_id    AS colorId,
+         t.codigo      AS talleCodigo,
+         c.codigo      AS colorCodigo,
+         a.nombre      AS articuloNombre,
+         a.sku         AS articuloSku,
+         (SELECT ap.precio
+          FROM articulo_precio ap
+          INNER JOIN lista_precio lp ON lp.id = ap.lista_precio_id AND lp.deleted_at IS NULL
+          WHERE ap.articulo_id = a.id
+            AND ap.deleted_at IS NULL
+            AND lp.id = COALESCE(?, (SELECT id FROM lista_precio WHERE es_default = 1 AND deleted_at IS NULL LIMIT 1))
+          LIMIT 1) AS precio
+       FROM articulo_variante v
+       JOIN articulo a ON a.id = v.articulo_id AND a.deleted_at IS NULL
+       JOIN talle t    ON t.id = v.talle_id    AND t.deleted_at IS NULL
+       JOIN color c    ON c.id = v.color_id    AND c.deleted_at IS NULL
+       WHERE v.codigo_barras = ? AND v.deleted_at IS NULL
+       LIMIT 1`,
+      [listaPrecioId ?? null, codigoBarras],
+    );
+
+    if (!filas.length) return null;
+    const f = filas[0];
+    return {
+      varianteId: f.varianteId as number,
+      articuloId: f.articuloId as number,
+      talleId: f.talleId as number,
+      colorId: f.colorId as number,
+      talleCodigo: f.talleCodigo as string,
+      colorCodigo: f.colorCodigo as string,
+      articuloNombre: f.articuloNombre as string,
+      articuloSku: f.articuloSku as string,
+      precio: f.precio != null ? parseFloat(String(f.precio)) : null,
+    };
+  }
+
   async findOne(id: number, puedeVerCosto = false) {
     const articulo = await this.repo.findOne({
       where: { id },

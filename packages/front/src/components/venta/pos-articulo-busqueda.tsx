@@ -3,7 +3,7 @@
 import React from 'react';
 import { Search, ArrowLeft, Loader2, Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { buscarArticulos, fetchGrillaConPrecio } from '@/services/articulo-venta';
+import { buscarArticulos, fetchGrillaConPrecio, buscarVariantePorBarcode } from '@/services/articulo-venta';
 import { VentaDetalle, ArticuloVariante } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +20,17 @@ export function PosArticuloBusqueda({ listaPrecioId, onAgregar }: PosArticuloBus
   const [busqueda, setBusqueda] = React.useState('');
   const [debouncedSearch, setDebouncedSearch] = React.useState('');
   const [articuloId, setArticuloId] = React.useState<number | null>(null);
+  const [isScanning, setIsScanning] = React.useState(false);
+  const [noEncontrado, setNoEncontrado] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Refs para acceder al estado actual desde el listener global (evita closures obsoletos)
+  const busquedaRef = React.useRef(busqueda);
+  React.useEffect(() => { busquedaRef.current = busqueda; }, [busqueda]);
+  const listaPrecioIdRef = React.useRef(listaPrecioId);
+  React.useEffect(() => { listaPrecioIdRef.current = listaPrecioId; }, [listaPrecioId]);
+  const articulosRef = React.useRef<typeof articulos>([]);
+  const executarScanRef = React.useRef<((barcode: string) => void) | null>(null);
 
   React.useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(busqueda), 280);
@@ -36,6 +46,7 @@ export function PosArticuloBusqueda({ listaPrecioId, onAgregar }: PosArticuloBus
     queryFn: () => buscarArticulos(debouncedSearch, listaPrecioId),
     enabled: debouncedSearch.length >= 2,
   });
+  articulosRef.current = articulos;
 
   const { data: grilla, isFetching: isFetchingGrilla } = useQuery({
     queryKey: ['grilla-pos', articuloId, listaPrecioId],
@@ -73,6 +84,74 @@ export function PosArticuloBusqueda({ listaPrecioId, onAgregar }: PosArticuloBus
     setTimeout(() => inputRef.current?.focus(), 50);
   };
 
+  const executarScan = async (barcode: string) => {
+    if (!barcode) return;
+    setIsScanning(true);
+    setNoEncontrado(false);
+    try {
+      const result = await buscarVariantePorBarcode(barcode, listaPrecioIdRef.current);
+      const precio = result.precio ?? 0;
+      onAgregar({
+        articuloVarianteId: result.varianteId,
+        cantidad: '1',
+        precioUnitario: precio.toFixed(2),
+        subtotalLinea: precio.toFixed(2),
+        articuloVariante: {
+          id: result.varianteId,
+          articuloId: result.articuloId,
+          talleId: result.talleId,
+          colorId: result.colorId,
+          cantidad: '0',
+          talle: { id: result.talleId, codigo: result.talleCodigo, nombre: result.talleCodigo, orden: 0 },
+          color: { id: result.colorId, codigo: result.colorCodigo, nombre: result.colorCodigo },
+          articulo: { id: result.articuloId, nombre: result.articuloNombre, sku: result.articuloSku },
+        },
+      });
+      setBusqueda('');
+      setDebouncedSearch('');
+      setTimeout(() => inputRef.current?.focus(), 50);
+    } catch {
+      const arts = articulosRef.current;
+      if (arts.length === 1) {
+        setArticuloId(arts[0].id!);
+      } else {
+        setNoEncontrado(true);
+        setTimeout(() => setNoEncontrado(false), 1200);
+      }
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Actualiza el ref en cada render para que el listener global use la versión más reciente
+  executarScanRef.current = executarScan;
+
+  // Intercepta Enter en fase de captura (antes que el browser o cualquier elemento de la página)
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const esOtroInput = (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')
+        && target !== inputRef.current;
+      if (esOtroInput) return;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        const barcode = busquedaRef.current.trim();
+        if (barcode) executarScanRef.current?.(barcode);
+        return;
+      }
+
+      // Si el scanner dispara mientras el foco está en otro lado, redirigir al input
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey && target !== inputRef.current) {
+        inputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handler, true);
+    return () => document.removeEventListener('keydown', handler, true);
+  }, []);
+
   const seleccionarArticulo = async (id: number) => {
     const articulo = articulos.find((a) => a.id === id);
     if (!articulo) return;
@@ -103,7 +182,12 @@ export function PosArticuloBusqueda({ listaPrecioId, onAgregar }: PosArticuloBus
               ref={inputRef}
               type="text"
               placeholder="Buscar artículo por nombre o código..."
-              className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 transition-shadow"
+              className={cn(
+                'w-full h-10 pl-9 pr-4 rounded-md border bg-background text-sm outline-none focus:ring-2 focus:ring-offset-1 transition-all',
+                noEncontrado
+                  ? 'border-destructive focus:ring-destructive'
+                  : 'border-input focus:ring-ring',
+              )}
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               autoFocus
@@ -125,7 +209,7 @@ export function PosArticuloBusqueda({ listaPrecioId, onAgregar }: PosArticuloBus
               )}
             </div>
           )}
-          {(isFetching || isFetchingGrilla) && (
+          {(isFetching || isFetchingGrilla || isScanning) && (
             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
           )}
         </div>

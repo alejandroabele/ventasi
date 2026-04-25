@@ -73,6 +73,7 @@ import { Input } from "@/components/ui/input";
 type InputMoneyProps = {
   value?: number | string;
   onChange?: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -80,7 +81,7 @@ type InputMoneyProps = {
 
 export const InputMoney = React.forwardRef<HTMLInputElement, InputMoneyProps>(
   (
-    { value = "", onChange, disabled, placeholder, className = "", ...props },
+    { value = "", onChange, onKeyDown, disabled, placeholder, className = "", ...props },
     ref
   ) => {
     const [displayValue, setDisplayValue] = React.useState("");
@@ -182,7 +183,7 @@ export const InputMoney = React.forwardRef<HTMLInputElement, InputMoneyProps>(
           ref={ref}
           value={displayValue}
           onChange={handleChange}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => { handleKeyDown(e); onKeyDown?.(e); }}
           placeholder={placeholder}
           className={`flex w-full rounded-md border border-input bg-background pl-8 px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
           {...props}

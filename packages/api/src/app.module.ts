@@ -43,8 +43,14 @@ import { VisitaModule } from './modules/visita/visita.module';
 import { ListaPrecioModule } from './modules/lista-precio/lista-precio.module';
 import { ArticuloPrecioModule } from './modules/articulo-precio/articulo-precio.module';
 import { VendedorModule } from './modules/vendedor/vendedor.module';
-import { MetodoPagoModule } from './modules/metodo-pago/metodo-pago.module';
+import { MedioPagoModule } from './modules/medio-pago/medio-pago.module';
+import { CobroModule } from './modules/cobro/cobro.module';
 import { VentaModule } from './modules/venta/venta.module';
+import { CajaModule } from './modules/caja/caja.module';
+import { ConceptoMovimientoModule } from './modules/concepto-movimiento/concepto-movimiento.module';
+import { SesionCajaModule } from './modules/sesion-caja/sesion-caja.module';
+import { MovimientoCajaModule } from './modules/movimiento-caja/movimiento-caja.module';
+import { ArqueoCajaModule } from './modules/arqueo-caja/arqueo-caja.module';
 
 @Module({
   imports: [
@@ -98,8 +104,14 @@ import { VentaModule } from './modules/venta/venta.module';
     ListaPrecioModule,
     ArticuloPrecioModule,
     VendedorModule,
-    MetodoPagoModule,
+    MedioPagoModule,
+    CobroModule,
     VentaModule,
+    CajaModule,
+    ConceptoMovimientoModule,
+    SesionCajaModule,
+    MovimientoCajaModule,
+    ArqueoCajaModule,
   ],
   providers: [
     ExcelExportService,

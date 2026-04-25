@@ -12,7 +12,7 @@ import { VentaTotalizador, calcularTotales } from '@/components/venta/venta-tota
 import { VentaFormasPago } from '@/components/venta/venta-formas-pago';
 import { VentaAcciones } from '@/components/venta/venta-acciones';
 import { useGetVentaByIdQuery, useGuardarVentaMutation } from '@/hooks/venta';
-import { Venta, VentaDetalle, VentaFormaPago } from '@/types';
+import { Venta, VentaDetalle } from '@/types';
 import { cn } from '@/lib/utils';
 
 const ESTADO_DOT: Record<string, string> = {
@@ -60,7 +60,7 @@ export default function VentaPage() {
 
   const [ventaLocal, setVentaLocal] = React.useState<Partial<Venta>>({});
   const [detalles, setDetalles] = React.useState<VentaDetalle[]>([]);
-  const [formasPago, setFormasPago] = React.useState<VentaFormaPago[]>([]);
+  const [formasPago] = React.useState<never[]>([]);
   const [openAgregarArticulo, setOpenAgregarArticulo] = React.useState(false);
   const [initialized, setInitialized] = React.useState(false);
 
@@ -68,7 +68,6 @@ export default function VentaPage() {
     if (ventaApi && !initialized) {
       setVentaLocal(ventaApi);
       setDetalles(ventaApi.detalles ?? []);
-      setFormasPago(ventaApi.formasPago ?? []);
       setInitialized(true);
     }
   }, [ventaApi, initialized]);
@@ -91,13 +90,8 @@ export default function VentaPage() {
     setDetalles((prev) => [...prev, detalle as VentaDetalle]);
   };
 
-  const handleAddFormaPago = (forma: Omit<VentaFormaPago, 'id' | 'ventaId'>) => {
-    setFormasPago((prev) => [...prev, forma as VentaFormaPago]);
-  };
-
-  const handleRemoveFormaPago = (index: number) => {
-    setFormasPago((prev) => prev.filter((_, i) => i !== index));
-  };
+  const handleAddFormaPago = () => {};
+  const handleRemoveFormaPago = (_index: number) => {};
 
   const buildVentaPayload = (): Venta => {
     const totales = calcularTotales(
@@ -111,7 +105,6 @@ export default function VentaPage() {
     return {
       ...ventaLocal,
       detalles,
-      formasPago,
       subtotal: totales.subtotal.toFixed(2),
       baseImponible: totales.baseImponible.toFixed(2),
       iva: totales.iva.toFixed(2),
@@ -234,7 +227,7 @@ export default function VentaPage() {
           />
 
           <VentaAcciones
-            venta={{ ...ventaLocal, detalles, formasPago }}
+            venta={{ ...ventaLocal, detalles }}
             onGuardar={handleGuardar}
             canConfirmar={canConfirmar}
           />

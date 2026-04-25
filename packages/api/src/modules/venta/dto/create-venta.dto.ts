@@ -25,28 +25,15 @@ export class CreateVentaDetalleDto {
   subtotalLinea: string;
 }
 
-export class CreateVentaFormaPagoDto {
-  @IsInt()
-  metodoPagoId: number;
+export class CreateVentaDto {
+  @IsOptional()
+  @IsString()
+  tipoOperacion?: string;
 
   @IsOptional()
   @IsInt()
-  cuotaMetodoPagoId?: number;
+  ventaOrigenId?: number;
 
-  @IsInt()
-  cantidadCuotas: number;
-
-  @IsString()
-  tasaInteres: string;
-
-  @IsString()
-  montoBase: string;
-
-  @IsString()
-  montoConInteres: string;
-}
-
-export class CreateVentaDto {
   @IsOptional()
   @IsInt()
   visitaId?: number;
@@ -56,6 +43,10 @@ export class CreateVentaDto {
 
   @IsInt()
   vendedorId: number;
+
+  @IsOptional()
+  @IsInt()
+  usuarioId?: number;
 
   @IsInt()
   listaPrecioId: number;
@@ -99,9 +90,4 @@ export class CreateVentaDto {
   @ValidateNested({ each: true })
   @Type(() => CreateVentaDetalleDto)
   detalles: CreateVentaDetalleDto[];
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateVentaFormaPagoDto)
-  formasPago: CreateVentaFormaPagoDto[];
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req, ParseArrayPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req, ParseArrayPipe, NotFoundException, BadRequestException } from '@nestjs/common';
 import { JwtAuthGuard } from '@/modules/auth/guards/jwt-auth/jwt-auth.guard';
 import { ApiKeyGuard } from '@/modules/auth/guards/api-key/api-key.guard';
 import { AuthorizationGuard } from '@/modules/auth/guards/authorization/authorization.guard';
@@ -81,6 +81,19 @@ export class ArticuloController {
     @Query('articuloIds', new ParseArrayPipe({ items: Number, separator: ',' })) articuloIds: number[],
   ) {
     return this.service.getVariantesParaEtiquetas(articuloIds);
+  }
+
+  @Get('variantes/buscar-barcode')
+  @RequirePermissions(PERMISOS.ARTICULO_VER)
+  async buscarPorBarcode(
+    @Query('barcode') barcode: string,
+    @Query('listaPrecioId') listaPrecioId?: string,
+  ) {
+    if (!barcode?.trim()) throw new BadRequestException('barcode requerido');
+    const lista = listaPrecioId ? parseInt(listaPrecioId, 10) : undefined;
+    const result = await this.service.buscarPorBarcode(barcode.trim(), lista && !isNaN(lista) ? lista : undefined);
+    if (!result) throw new NotFoundException();
+    return result;
   }
 
   @Get(':id')
