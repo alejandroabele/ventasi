@@ -1,5 +1,5 @@
 import { NEXT_STORE_GLOBAL } from '@/config';
-import { Permission, User } from '@/types';
+import { Menu, Permission, User } from '@/types';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 interface AppState {
@@ -13,6 +13,8 @@ interface AppState {
     setUser: (user?: User) => void,
     permissions: Permission[]
     setPermissions: (permissions: Permission[]) => void
+    menu?: Menu
+    setMenu: (menu?: Menu) => void
 }
 export const useStore = create<AppState>()(
     persist(
@@ -27,6 +29,8 @@ export const useStore = create<AppState>()(
             setUser: (user?: User) => set({ user }),
             permissions: [],
             setPermissions: (permissions: Permission[]) => set({ permissions }),
+            menu: undefined,
+            setMenu: (menu?: Menu) => set({ menu }),
         }),
         {
             name: NEXT_STORE_GLOBAL,

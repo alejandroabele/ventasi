@@ -14,8 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isLoading, setLoading] = React.useState(true);
-  const { setUser: setUserStore } = useStore();
-  const { setPermissions } = useStore();
+  const { setUser: setUserStore, setPermissions, setMenu: setMenuStore } = useStore();
   const [user, setUser] = React.useState<User>();
   const [menu, setMenu] = React.useState<Menu>();
   const router = useRouter();
@@ -29,6 +28,7 @@ export default function RootLayout({
       setUserStore(result?.user ?? undefined);
       setPermissions(result?.permissions ?? []);
       setMenu(result?.menu ?? undefined);
+      setMenuStore(result?.menu ?? undefined);
       // if (!result?.hasPermission) {
       //   router.push("/");
       // }
